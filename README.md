@@ -2,7 +2,7 @@ This project aims to explore the concepts of Event Sourcing, CQRS and DDD using 
 
 It has been partially inspired by the [Microsoft CQRS Journey](https://msdn.microsoft.com/en-us/library/jj554200.aspx) in that we want to build a Conference Management System based on their initial functional needs (see below). This domain may be extended in the future.
 
-Please note that the implementation and the design are not related to the Microsoft's one.
+Please note that the implementation and the design are not related to the Microsoft's ones.
 
 # Functional needs #
 ## Overview of the system ##
