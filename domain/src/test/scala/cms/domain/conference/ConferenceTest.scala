@@ -7,7 +7,7 @@ class ConferenceTest extends FlatSpec with Matchers {
   "A conference" can "be created" in {
 
     // When
-    val conference = new Conference(name = "MixIT 2018", slug = "mix-it-18")
+    val conference = Conference(name = "MixIT 2018", slug = "mix-it-18")
 
     // Then
     conference.events.map(_.event) should contain only ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18")
@@ -16,7 +16,7 @@ class ConferenceTest extends FlatSpec with Matchers {
   it should "use its slug as identifier" in {
 
     // When
-    val conference = new Conference(name = "MixIT 2018", slug = "mix-it-18")
+    val conference = Conference(name = "MixIT 2018", slug = "mix-it-18")
 
     // Then
     conference.id should equal("mix-it-18")
@@ -26,12 +26,18 @@ class ConferenceTest extends FlatSpec with Matchers {
 
     // Given
     val history = List(ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"))
-    val conference = new Conference(id = "mix-it-18", history)
+    val conference = Conference(id = "mix-it-18", history)
 
     // When
     conference.update(name = "MixIT 18'")
 
     // Then
     conference.events.map(_.event) should contain only ConferenceUpdated(name = "MixIT 18'")
+  }
+
+  it can "not be instantiated from an empty history" in {
+    the[IllegalArgumentException] thrownBy {
+      Conference(id = "mix-it-18", Nil)
+    } should have message "Either create a new conference from a slug or provide an history"
   }
 }

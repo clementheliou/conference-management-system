@@ -2,12 +2,12 @@ package cms.domain.conference
 
 import cms.domain.eventsourcing.{Event, EventSourcedAggregate}
 
-final class Conference(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
+final class Conference private(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
 
   private[this] val state = new DecisionProjection
   history foreach state.apply
 
-  def this(name: String, slug: String) {
+  private def this(name: String, slug: String) {
     this(slug)
     raise {
       ConferenceCreated(name, slug)
@@ -28,6 +28,18 @@ final class Conference(val id: String, history: List[ConferenceEvent] = Nil) ext
 
       case e: ConferenceUpdated => name = e.name
     }
+  }
+}
+
+object Conference {
+  def apply(name: String, slug: String) = new Conference(name, slug)
+
+  def apply(id: String, history: List[ConferenceEvent]) = {
+    if (history.isEmpty) {
+      throw new IllegalArgumentException("Either create a new conference from a slug or provide an history")
+    }
+
+    new Conference(id, history)
   }
 }
 
