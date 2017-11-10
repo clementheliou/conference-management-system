@@ -23,11 +23,7 @@ class EventSourcedAggregateTest extends FlatSpec with Matchers {
     val eventSourcedAggregate = new DummyAggregate
 
     // When
-    1 to 3 foreach { _ =>
-      eventSourcedAggregate raise {
-        new Event {}
-      }
-    }
+    1 to 3 foreach { _ => eventSourcedAggregate raise { new Event {} } }
 
     // Then
     eventSourcedAggregate.events.map(_.version) should contain inOrderOnly(0, 1, 2)
@@ -41,9 +37,7 @@ class EventSourcedAggregateTest extends FlatSpec with Matchers {
     }
 
     // When
-    eventSourcedAggregate raise {
-      new Event {}
-    }
+    eventSourcedAggregate raise { new Event {} }
 
     // Then
     eventSourcedAggregate.events.map(_.sourceId) should contain only "an aggregate id"

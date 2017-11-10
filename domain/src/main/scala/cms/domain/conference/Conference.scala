@@ -9,14 +9,10 @@ final class Conference private(val id: String, history: List[ConferenceEvent] = 
 
   private def this(name: String, slug: String) {
     this(slug)
-    raise {
-      ConferenceCreated(name, slug)
-    }
+    raise { ConferenceCreated(name, slug) }
   }
 
-  def update(name: String): Unit = raise {
-    ConferenceUpdated(name)
-  }
+  def update(name: String): Unit = raise { ConferenceUpdated(name) }
 
   private class DecisionProjection {
     var name, slug: String = _
