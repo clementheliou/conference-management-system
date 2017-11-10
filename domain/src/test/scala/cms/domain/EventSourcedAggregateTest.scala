@@ -1,4 +1,4 @@
-package cms.domain.eventsourcing
+package cms.domain
 
 import org.scalatest.{FlatSpec, Matchers}
 

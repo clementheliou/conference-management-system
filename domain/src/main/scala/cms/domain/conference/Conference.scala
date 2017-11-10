@@ -1,6 +1,6 @@
 package cms.domain.conference
 
-import cms.domain.eventsourcing.{Event, EventSourcedAggregate}
+import cms.domain.{Event, EventSourcedAggregate}
 
 final class Conference private(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
 
