@@ -12,7 +12,7 @@ trait EventSourcedAggregate {
     version += 1
   }
 
-  def events = pendingEvents
+  def events = pendingEvents.toList
 
   def id: String
 }
