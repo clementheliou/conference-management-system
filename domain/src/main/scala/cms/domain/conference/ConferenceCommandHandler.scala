@@ -16,7 +16,7 @@ class ConferenceCommandHandler extends CommandHandler[ConferenceCommand] with Ev
 
   private def updateConference(c: UpdateConference): Unit = find(c.id) match {
     case Some(history) =>
-      val conference = Conference(c.id, history.map(_.event).map(_.asInstanceOf[ConferenceEvent]))
+      val conference = Conference(c.id, history)
       conference.update(c.name)
       save(conference)
     case None => throw new UnsupportedOperationException("Not tested yet")

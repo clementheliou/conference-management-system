@@ -2,12 +2,12 @@ package cms.domain
 
 import scala.collection.mutable
 
-trait EventSourcedAggregate {
+trait EventSourcedAggregate[T <: Event] {
 
-  private[this] val pendingEvents = mutable.MutableList[VersionedEvent]()
+  private[this] val pendingEvents = mutable.MutableList[VersionedEvent[T]]()
   private[this] var version = 0L
 
-  protected[this] def raise(event: Event): Unit = {
+  protected[this] def raise(event: T){
     pendingEvents += VersionedEvent(id, version, event)
     version += 1
   }

@@ -2,7 +2,8 @@ package cms.domain.conference
 
 import cms.domain.{Event, EventSourcedAggregate}
 
-final class Conference private(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
+final class Conference private(val id: String, history: List[ConferenceEvent] = Nil)
+  extends EventSourcedAggregate[ConferenceEvent] {
 
   private[this] val state = new DecisionProjection
   history foreach state.apply

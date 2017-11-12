@@ -2,7 +2,7 @@ package cms.domain
 
 trait EventSourcedRepository {
 
-  def find(id: String): Option[List[VersionedEvent]] = None
+  def find[T <: Event](aggregateId: String): Option[List[T]] = None
 
-  def save(aggregate: EventSourcedAggregate){}
+  def save[T <: Event](aggregate: EventSourcedAggregate[T]){}
 }
