@@ -13,7 +13,7 @@ final class Conference private(val id: String, history: List[ConferenceEvent] = 
     raise { ConferenceCreated(name, slug) }
   }
 
-  def update(name: String): Unit = raise { ConferenceUpdated(name) }
+  def update(name: String): Unit = raise { ConferenceUpdated(id, name) }
 
   private class DecisionProjection {
     var name, slug: String = _
@@ -44,4 +44,4 @@ sealed trait ConferenceEvent extends Event
 
 case class ConferenceCreated(name: String, slug: String) extends ConferenceEvent
 
-case class ConferenceUpdated(name: String) extends ConferenceEvent
+case class ConferenceUpdated(id: String, name: String) extends ConferenceEvent

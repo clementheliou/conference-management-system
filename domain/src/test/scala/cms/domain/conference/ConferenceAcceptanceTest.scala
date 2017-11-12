@@ -32,7 +32,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     // Then
     conferenceCommandHandler.get(conferenceId) should contain inOrderOnly(
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
-      ConferenceUpdated(name = "MixIT 18")
+      ConferenceUpdated(id = conferenceId, name = "MixIT 18")
     )
   }
 }
