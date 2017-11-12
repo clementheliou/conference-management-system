@@ -10,7 +10,7 @@ class ConferenceCommandHandler extends CommandHandler[ConferenceCommand] with Ev
   }
 
   private def createConference(c: CreateConference): Unit = find(c.slug) match {
-    case Some(_) => throw new UnsupportedOperationException("Not tested yet")
+    case Some(_) =>
     case None => save { Conference(c.name, c.slug) }
   }
 

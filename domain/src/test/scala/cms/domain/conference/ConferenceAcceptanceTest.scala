@@ -35,4 +35,21 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
       ConferenceUpdated(id = conferenceId, name = "MixIT 18")
     )
   }
+
+  it can "not be created if its the slug is already in use" in {
+
+    // Given
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+    val conferenceId = "mix-it-18"
+
+    conferenceCommandHandler.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+
+    // When
+    conferenceCommandHandler.handle(CreateConference(name = "MixIT 18", slug = conferenceId))
+
+    // Then
+    conferenceCommandHandler.get(conferenceId) should contain only
+      ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
+  }
+
 }
