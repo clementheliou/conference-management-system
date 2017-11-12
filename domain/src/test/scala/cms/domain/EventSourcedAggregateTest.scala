@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class EventSourcedAggregateTest extends FlatSpec with Matchers {
 
-  "An event-sourced aggregate" should "add raised events to the pending events who are waiting for to be persisted" in {
+  "An event-sourced aggregate" should "add raised events to the pending events which are waiting for to be persisted" in {
 
     // Given
     val eventSourcedAggregate = new DummyAggregate
