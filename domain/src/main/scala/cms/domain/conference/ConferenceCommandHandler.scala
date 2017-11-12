@@ -19,6 +19,6 @@ class ConferenceCommandHandler extends CommandHandler[ConferenceCommand] with Ev
       val conference = Conference(c.id, history)
       conference.update(c.name)
       save(conference)
-    case None => throw new UnsupportedOperationException("Not tested yet")
+    case None =>
   }
 }

@@ -52,4 +52,15 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
   }
 
+  it can "not be updated if not created before" in {
+
+    // Given
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+
+    // When
+    conferenceCommandHandler.handle(UpdateConference("mix-it-18", name = "MixIT 18"))
+
+    // Then
+    conferenceCommandHandler.find("mix-it-18") shouldBe None
+  }
 }
