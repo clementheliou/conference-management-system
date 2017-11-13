@@ -10,16 +10,20 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>application</module>
         <module>domain</module>
         <module>infrastructure</module>
     </modules>
 
     <properties>
         <java.target.version>1.8</java.target.version>
+        <javax.servlet-api.version>4.0.0</javax.servlet-api.version>
+        <jetty.version>9.4.7.v20170914</jetty.version>
         <scala-library.version>2.12.4</scala-library.version>
         <scala-maven-plugin.version>3.3.1</scala-maven-plugin.version>
         <scalatest_2.12.version>3.0.4</scalatest_2.12.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
+        <scalatra_2.12.version>2.6.1</scalatra_2.12.version>
     </properties>
 
     <build>
@@ -73,15 +77,57 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <!-- INTERNAL -->
+            <dependency>
+                <groupId>com.github.clementheliou.cms</groupId>
+                <artifactId>domain</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.clementheliou.cms</groupId>
+                <artifactId>infrastructure</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+
+            <!-- EXTERNAL -->
             <dependency>
                 <groupId>org.scala-lang</groupId>
                 <artifactId>scala-library</artifactId>
                 <version>${scala-library.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.scalatra</groupId>
+                <artifactId>scalatra_2.12</artifactId>
+                <version>${scalatra_2.12.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            
+            <dependency>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest_2.12</artifactId>
                 <version>${scalatest_2.12.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

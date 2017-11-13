@@ -11,17 +11,13 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.clementheliou.cms</groupId>
-    <artifactId>infrastructure</artifactId>
+    <artifactId>application</artifactId>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.scalatest</groupId>
-                <artifactId>scalatest-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -33,11 +29,23 @@
             <groupId>com.github.clementheliou.cms</groupId>
             <artifactId>domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.clementheliou.cms</groupId>
+            <artifactId>infrastructure</artifactId>
+        </dependency>
 
         <!-- EXTERNAL -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
