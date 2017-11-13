@@ -19,7 +19,10 @@
         <java.target.version>1.8</java.target.version>
         <javax.servlet-api.version>4.0.0</javax.servlet-api.version>
         <jetty.version>9.4.7.v20170914</jetty.version>
+        <json4s-jackson_2.12.version>3.5.3</json4s-jackson_2.12.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
         <scala-library.version>2.12.4</scala-library.version>
+        <scala-logging_2.12.version>3.7.2</scala-logging_2.12.version>
         <scala-maven-plugin.version>3.3.1</scala-maven-plugin.version>
         <scalatest_2.12.version>3.0.4</scalatest_2.12.version>
         <scalatest-maven-plugin.version>1.0</scalatest-maven-plugin.version>
@@ -92,14 +95,14 @@
 
             <!-- EXTERNAL -->
             <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala-library.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback-classic.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.scalatra</groupId>
-                <artifactId>scalatra_2.12</artifactId>
-                <version>${scalatra_2.12.version}</version>
+                <groupId>com.typesafe.scala-logging</groupId>
+                <artifactId>scala-logging_2.12</artifactId>
+                <version>${scala-logging_2.12.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
@@ -122,7 +125,27 @@
                 <version>${jetty.version}</version>
                 <scope>compile</scope>
             </dependency>
-            
+            <dependency>
+                <groupId>org.json4s</groupId>
+                <artifactId>json4s-jackson_2.12</artifactId>
+                <version>${json4s-jackson_2.12.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-library.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalatra</groupId>
+                <artifactId>scalatra_2.12</artifactId>
+                <version>${scalatra_2.12.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalatra</groupId>
+                <artifactId>scalatra-json_2.12</artifactId>
+                <version>${scalatra_2.12.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest_2.12</artifactId>
@@ -133,6 +156,14 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging_2.12</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
