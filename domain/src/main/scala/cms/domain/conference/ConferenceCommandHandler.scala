@@ -2,7 +2,7 @@ package cms.domain.conference
 
 import cms.domain.{CommandHandler, EventSourcedRepository}
 
-class ConferenceCommandHandler extends CommandHandler[ConferenceCommand] with EventSourcedRepository {
+class ConferenceCommandHandler extends CommandHandler[ConferenceCommand] with EventSourcedRepository[ConferenceEvent] {
 
   def handle(command: ConferenceCommand): Unit = command match {
     case c: CreateConference => createConference(c)

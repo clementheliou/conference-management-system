@@ -8,7 +8,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
   "A conference" can "be created" in {
 
     // Given
-    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository[ConferenceEvent]
 
     // When
     conferenceCommandHandler.handle(CreateConference(name = "MixIT 2018", slug = "mix-it-18"))
@@ -21,7 +21,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
   it can "be updated with a name" in {
 
     // Given
-    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository[ConferenceEvent]
     val conferenceId = "mix-it-18"
 
     conferenceCommandHandler.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
@@ -39,7 +39,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
   it can "not be created if its the slug is already in use" in {
 
     // Given
-    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository[ConferenceEvent]
     val conferenceId = "mix-it-18"
 
     conferenceCommandHandler.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
@@ -55,7 +55,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
   it can "not be updated if not created before" in {
 
     // Given
-    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository
+    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository[ConferenceEvent]
 
     // When
     conferenceCommandHandler.handle(UpdateConference("mix-it-18", name = "MixIT 18"))
