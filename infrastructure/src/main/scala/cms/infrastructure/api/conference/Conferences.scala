@@ -1,7 +1,7 @@
 package cms.infrastructure.api.conference
 
 import cms.domain.CommandHandler
-import cms.domain.conference.{ConferenceCommand, CreateConference}
+import cms.domain.conference.{ConferenceCommand, CreateConference, UpdateConference}
 import com.typesafe.scalalogging.Logger
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.ScalatraServlet
@@ -20,6 +20,15 @@ class Conferences(commandHandler: CommandHandler[ConferenceCommand]) extends Sca
         logger.info(s"Handling creation command from ${ request.body }")
         commandHandler.handle(command)
       case None => logger.error(s"Unable to parse creation command from ${request.body}")
+    }
+  }
+
+  put("/") {
+    parsedBody.extractOpt[UpdateConference] match {
+      case Some(command) =>
+        logger.info(s"Handling update command from ${request.body}")
+        commandHandler.handle(command)
+      case None => logger.error(s"Unable to parse update command from ${request.body}")
     }
   }
 }
