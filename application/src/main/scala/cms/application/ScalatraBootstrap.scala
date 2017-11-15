@@ -10,7 +10,8 @@ import org.scalatra.LifeCycle
 final class ScalatraBootstrap extends LifeCycle {
 
   override def init(context: ServletContext){
-    val conferenceCommandHandler = new ConferenceCommandHandler with InMemoryEventSourcedRepository[ConferenceEvent]
+    val conferenceEventRepository = new InMemoryEventSourcedRepository[ConferenceEvent]
+    val conferenceCommandHandler = new ConferenceCommandHandler(conferenceEventRepository)
     val conferencesEndpoint = new Conferences(conferenceCommandHandler)
 
     context mount(conferencesEndpoint, "/api/conferences/*")

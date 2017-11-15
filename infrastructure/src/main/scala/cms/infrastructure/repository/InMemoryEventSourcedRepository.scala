@@ -4,7 +4,7 @@ import cms.domain.{Event, EventSourcedAggregate, EventSourcedRepository, Version
 
 import scala.collection.mutable.{Map => MutableMap}
 
-trait InMemoryEventSourcedRepository[T <: Event] extends EventSourcedRepository[T] {
+final class InMemoryEventSourcedRepository[T <: Event] extends EventSourcedRepository[T] {
 
   private[this] val eventStreams = MutableMap[String, List[VersionedEvent[T]]]()
 

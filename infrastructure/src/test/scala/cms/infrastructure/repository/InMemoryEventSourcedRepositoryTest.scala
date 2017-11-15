@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers, OptionValues}
 class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with OptionValues {
 
   trait Setup {
-    val repository = new InMemoryEventSourcedRepository[DummyEvent] {}
+    val repository = new InMemoryEventSourcedRepository[DummyEvent]
 
     def setExistingEventStream(aggregateId: String, eventStream: DummyEvent*){
       val aggregate = new DummyAggregate {override def id = aggregateId }
