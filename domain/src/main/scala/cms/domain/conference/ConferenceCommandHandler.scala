@@ -3,7 +3,7 @@ package cms.domain.conference
 import cms.domain.{CommandHandler, EventSourcedRepository}
 import com.typesafe.scalalogging.Logger
 
-final class ConferenceCommandHandler(repository: EventSourcedRepository[ConferenceEvent])
+final class ConferenceCommandHandler(repository: EventSourcedRepository[Conference])
   extends CommandHandler[ConferenceCommand] {
 
   private val logger = Logger(classOf[ConferenceCommandHandler])
@@ -19,8 +19,7 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository[Conferen
   }
 
   private def updateConference(c: UpdateConference): Unit = repository.find(c.id) match {
-    case Some(history) =>
-      val conference = Conference(c.id, history)
+    case Some(conference) =>
       conference.update(c.name)
       repository.save(conference)
     case None => logger.warn(s"Discard update command on missing conference (slug=${ c.id })")

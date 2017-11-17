@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class ConferenceAcceptanceTest extends FlatSpec with Matchers {
 
   trait Setup {
-    val conferenceEventRepository = new InMemoryEventSourcedRepository[ConferenceEvent]
+    val conferenceEventRepository = new InMemoryEventSourcedRepository[Conference]
     val conferenceCommandHandler = new ConferenceCommandHandler(conferenceEventRepository)
   }
 
@@ -16,7 +16,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(CreateConference(name = "MixIT 2018", slug = "mix-it-18"))
 
     // Then
-    conferenceEventRepository.get("mix-it-18") should contain only
+    conferenceEventRepository.getEventStream("mix-it-18") should contain only
       ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18")
   }
 
@@ -31,7 +31,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(UpdateConference(conferenceId, name = "MixIT 18"))
 
     // Then
-    conferenceEventRepository.get(conferenceId) should contain inOrderOnly(
+    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
       ConferenceUpdated(id = conferenceId, name = "MixIT 18")
     )
@@ -48,7 +48,7 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(CreateConference(name = "MixIT 18", slug = conferenceId))
 
     // Then
-    conferenceEventRepository.get(conferenceId) should contain only
+    conferenceEventRepository.getEventStream(conferenceId) should contain only
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
   }
 
@@ -58,6 +58,6 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(UpdateConference("mix-it-18", name = "MixIT 18"))
 
     // Then
-    conferenceEventRepository.find("mix-it-18") shouldBe None
+    conferenceEventRepository.find("mix-it-18")(Conference.apply) shouldBe None
   }
 }

@@ -6,10 +6,10 @@ import org.scalatest.{FlatSpec, Matchers, OptionValues}
 class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with OptionValues {
 
   trait Setup {
-    val repository = new InMemoryEventSourcedRepository[DummyEvent]
+    val repository = new InMemoryEventSourcedRepository[DummyAggregate]
 
     def setExistingEventStream(aggregateId: String, eventStream: DummyEvent*){
-      val aggregate = new DummyAggregate {override def id = aggregateId }
+      val aggregate = new DummyAggregate(id = aggregateId)
       eventStream.foreach(aggregate.raise)
       repository.save(aggregate)
     }
@@ -18,10 +18,10 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
   "An in-memory event-sourced repository" should "mark the absence of an event stream" in new Setup {
 
     // When
-    val maybeEventStream = repository.find("an id")
+    val maybeAggregate = repository.find("an id")
 
     // Then
-    maybeEventStream shouldBe None
+    maybeAggregate shouldBe None
   }
 
   it should "get an existing event stream from its source id" in new Setup {
@@ -30,16 +30,16 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
 
     // When
-    val maybeEventStream = repository.find("an id")
+    val maybeAggregate = repository.find("an id")
 
     // Then
-    maybeEventStream.value should contain inOrderOnly(DummyEvent(1), DummyEvent(2))
+    maybeAggregate.value.rehydratedEvents should contain inOrderOnly(DummyEvent(1), DummyEvent(2))
   }
 
   it should "create an event stream from the aggregate pending events if not exists" in new Setup {
 
     // Given
-    val aggregate = new DummyAggregate {override def id = "an id" }
+    val aggregate = new DummyAggregate(id = "an id")
     aggregate raise DummyEvent(1)
     aggregate raise DummyEvent(2)
 
@@ -47,7 +47,10 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     repository.save(aggregate)
 
     // Then
-    repository.find("an id").value should contain inOrderOnly(DummyEvent(1), DummyEvent(2))
+    repository.find("an id").value.rehydratedEvents should contain inOrderOnly(
+      DummyEvent(1),
+      DummyEvent(2)
+    )
   }
 
   it should "append the pending events to the existing event stream" in new Setup {
@@ -55,7 +58,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     // Given
     setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
 
-    val aggregate = new DummyAggregate {override def id = "an id" }
+    val aggregate = new DummyAggregate(id = "an id")
     aggregate raise DummyEvent(3)
     aggregate raise DummyEvent(4)
 
@@ -63,7 +66,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     repository.save(aggregate)
 
     // Then
-    repository.find("an id").value should contain inOrderOnly(
+    repository.find("an id").value.rehydratedEvents should contain inOrderOnly(
       DummyEvent(1),
       DummyEvent(2),
       DummyEvent(3),
@@ -72,8 +75,17 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
 
   }
 
-  trait DummyAggregate extends EventSourcedAggregate[DummyEvent] {
+  final class DummyAggregate(val id: String, val rehydratedEvents: List[DummyEvent] = Nil)
+    extends EventSourcedAggregate {
+
+    override type EventType = DummyEvent
+
     override def raise(event: DummyEvent): Unit = super.raise(event)
+
+  }
+
+  implicit val rehydrateFrom: (String, List[DummyEvent]) => DummyAggregate = {
+    (id, history) => new DummyAggregate(id, history)
   }
 
   case class DummyEvent(id: Int) extends Event

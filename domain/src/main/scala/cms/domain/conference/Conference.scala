@@ -2,8 +2,9 @@ package cms.domain.conference
 
 import cms.domain.{Event, EventSourcedAggregate}
 
-final class Conference private(val id: String, history: List[ConferenceEvent] = Nil)
-  extends EventSourcedAggregate[ConferenceEvent] {
+final class Conference private(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
+
+  override type EventType = ConferenceEvent
 
   private[this] val state = new DecisionProjection
   history foreach state.apply
@@ -29,6 +30,9 @@ final class Conference private(val id: String, history: List[ConferenceEvent] = 
 }
 
 object Conference {
+
+  implicit val rehydrateAggregate: (String, List[ConferenceEvent]) => Conference = apply
+
   def apply(name: String, slug: String) = new Conference(name, slug)
 
   def apply(id: String, history: List[ConferenceEvent]) = {

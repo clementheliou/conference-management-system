@@ -43,7 +43,10 @@ class EventSourcedAggregateTest extends FlatSpec with Matchers {
     eventSourcedAggregate.events.map(_.sourceId) should contain only "an aggregate id"
   }
 
-  private class DummyAggregate extends EventSourcedAggregate[Event] {
+  private class DummyAggregate extends EventSourcedAggregate {
+
+    override type EventType = Event
+
     override def raise(event: Event): Unit = super.raise(event)
 
     override def id = "a default id"
