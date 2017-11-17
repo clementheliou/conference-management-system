@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class ConferenceAcceptanceTest extends FlatSpec with Matchers {
 
   trait Setup {
-    val conferenceEventRepository = new InMemoryEventSourcedRepository[Conference]
+    val conferenceEventRepository = new InMemoryEventSourcedRepository
     val conferenceCommandHandler = new ConferenceCommandHandler(conferenceEventRepository)
   }
 
@@ -58,6 +58,6 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(UpdateConference("mix-it-18", name = "MixIT 18"))
 
     // Then
-    conferenceEventRepository.find("mix-it-18")(Conference.apply) shouldBe None
+    conferenceEventRepository.find[Conference]("mix-it-18")(Conference.apply) shouldBe None
   }
 }

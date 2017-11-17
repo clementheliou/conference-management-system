@@ -1,8 +1,8 @@
 package cms.domain
 
-trait EventSourcedRepository[A <: EventSourcedAggregate] {
+trait EventSourcedRepository {
 
-  def find(aggregateId: String)(implicit rehydrateFrom: (String, Seq[A#EventType]) => A): Option[A]
+  def find[A <: EventSourcedAggregate](id: String)(implicit rehydrateFrom: (String, Seq[A#EventType]) => A): Option[A]
 
-  def save(aggregate: A): Unit
+  def save[A <: EventSourcedAggregate](aggregate: A): Unit
 }

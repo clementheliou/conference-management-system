@@ -6,7 +6,7 @@ import org.scalatest.{FlatSpec, Matchers, OptionValues}
 class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with OptionValues {
 
   trait Setup {
-    val repository = new InMemoryEventSourcedRepository[DummyAggregate]
+    val repository = new InMemoryEventSourcedRepository
 
     def setExistingEventStream(aggregateId: String, eventStream: DummyEvent*){
       val aggregate = new DummyAggregate(id = aggregateId)
@@ -18,7 +18,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
   "An in-memory event-sourced repository" should "mark the absence of an event stream" in new Setup {
 
     // When
-    val maybeAggregate = repository.find("an id")
+    val maybeAggregate = repository.find[DummyAggregate]("an id")
 
     // Then
     maybeAggregate shouldBe None
@@ -30,7 +30,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
 
     // When
-    val maybeAggregate = repository.find("an id")
+    val maybeAggregate = repository.find[DummyAggregate]("an id")
 
     // Then
     maybeAggregate.value.rehydratedEvents should contain inOrderOnly(DummyEvent(1), DummyEvent(2))
@@ -47,7 +47,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     repository.save(aggregate)
 
     // Then
-    repository.find("an id").value.rehydratedEvents should contain inOrderOnly(
+    repository.find[DummyAggregate]("an id").value.rehydratedEvents should contain inOrderOnly(
       DummyEvent(1),
       DummyEvent(2)
     )
@@ -66,7 +66,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     repository.save(aggregate)
 
     // Then
-    repository.find("an id").value.rehydratedEvents should contain inOrderOnly(
+    repository.find[DummyAggregate]("an id").value.rehydratedEvents should contain inOrderOnly(
       DummyEvent(1),
       DummyEvent(2),
       DummyEvent(3),
