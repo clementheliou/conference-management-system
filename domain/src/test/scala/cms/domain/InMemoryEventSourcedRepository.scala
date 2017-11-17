@@ -7,10 +7,8 @@ final class InMemoryEventSourcedRepository extends EventSourcedRepository {
   private[this] val eventStreams = MutableMap[String, Seq[VersionedEvent[_ <: Event]]]()
 
   def find[A <: EventSourcedAggregate](id: String)(implicit rehydrateFrom: (String, Seq[A#EventType]) => A) ={
-    eventStreams.get(id) match {
-      case Some(eventStream) => Some(rehydrateFrom(id, eventStream.map(_.event.asInstanceOf[A#EventType])))
-      case None => None
-    }
+    eventStreams.get(id)
+      .map(eventStream => rehydrateFrom(id, eventStream.map(_.event.asInstanceOf[A#EventType])))
   }
 
   def save[A <: EventSourcedAggregate](aggregate: A){
