@@ -15,7 +15,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     }
   }
 
-  "An in-memory event-sourced repository" should "mark the absence of an event stream" in new Setup {
+  "An in-memory event-sourced repository" should "mark the absence of an aggregate" in new Setup {
 
     // When
     val maybeAggregate = repository.find[DummyAggregate]("an id")
@@ -24,7 +24,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     maybeAggregate shouldBe None
   }
 
-  it should "get an existing event stream from its source id" in new Setup {
+  it should "get a rehydrated aggregate from its existing event stream" in new Setup {
 
     // Given
     setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
