@@ -75,7 +75,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
 
   }
 
-  final class DummyAggregate(val id: String, val rehydratedEvents: List[DummyEvent] = Nil)
+  final class DummyAggregate(val id: String, val rehydratedEvents: Seq[DummyEvent] = Nil)
     extends EventSourcedAggregate {
 
     override type EventType = DummyEvent
@@ -84,7 +84,7 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
 
   }
 
-  implicit val rehydrateFrom: (String, List[DummyEvent]) => DummyAggregate = {
+  implicit val rehydrateFrom: (String, Seq[DummyEvent]) => DummyAggregate = {
     (id, history) => new DummyAggregate(id, history)
   }
 

@@ -6,9 +6,9 @@ import scala.collection.mutable.{Map => MutableMap}
 
 final class InMemoryEventSourcedRepository[A <: EventSourcedAggregate] extends EventSourcedRepository[A] {
 
-  private[this] val eventStreams = MutableMap[String, List[VersionedEvent[_ <: A#EventType]]]()
+  private[this] val eventStreams = MutableMap[String, Seq[VersionedEvent[_ <: A#EventType]]]()
 
-  def find(aggregateId: String)(implicit rehydrateFrom: (String, List[A#EventType]) => A)= {
+  def find(aggregateId: String)(implicit rehydrateFrom: (String, Seq[A#EventType]) => A) ={
     eventStreams.get(aggregateId) match {
       case Some(eventStream) => Some(rehydrateFrom(aggregateId, eventStream.map(_.event)))
       case None => None

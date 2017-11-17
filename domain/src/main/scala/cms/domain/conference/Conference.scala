@@ -2,7 +2,7 @@ package cms.domain.conference
 
 import cms.domain.{Event, EventSourcedAggregate}
 
-final class Conference private(val id: String, history: List[ConferenceEvent] = Nil) extends EventSourcedAggregate {
+final class Conference private(val id: String, history: Seq[ConferenceEvent] = Nil) extends EventSourcedAggregate {
 
   override type EventType = ConferenceEvent
 
@@ -31,11 +31,11 @@ final class Conference private(val id: String, history: List[ConferenceEvent] = 
 
 object Conference {
 
-  implicit val rehydrateAggregate: (String, List[ConferenceEvent]) => Conference = apply
+  implicit val rehydrateAggregate: (String, Seq[ConferenceEvent]) => Conference = apply
 
   def apply(name: String, slug: String) = new Conference(name, slug)
 
-  def apply(id: String, history: List[ConferenceEvent]) = {
+  def apply(id: String, history: Seq[ConferenceEvent]) = {
     if (history.isEmpty) {
       throw new IllegalArgumentException("Either create a new conference from a slug or provide an history")
     }
