@@ -43,13 +43,46 @@ class EventSourcedAggregateTest extends FlatSpec with Matchers {
     eventSourcedAggregate.events.map(_.sourceId) should contain only "an aggregate id"
   }
 
+  "A decision projection" should "increment aggregate version each time an event is projected against it" in {
+
+    // Given
+    val eventSourcedAggregate = new DummyAggregate
+    val history = Seq(new Event {}, new Event {})
+
+    // When
+    eventSourcedAggregate.state.computeFrom(history)
+    eventSourcedAggregate raise { new Event {} }
+
+    // Then
+    eventSourcedAggregate.events.map(_.version) should contain only 2
+  }
+
+  it should "project every event from the history against its aggregate" in {
+
+    // Given
+    val eventSourcedAggregate = new DummyAggregate
+    val history = Seq(new Event {}, new Event {})
+
+    // When
+    eventSourcedAggregate.state.computeFrom(history)
+
+    // Then
+    eventSourcedAggregate.projectedEvents should contain theSameElementsInOrderAs history
+  }
+
   private class DummyAggregate extends EventSourcedAggregate {
 
     override type EventType = Event
 
     override def raise(event: Event): Unit = super.raise(event)
 
-    override def id = "a default id"
+    def id = "a default id"
+
+    var projectedEvents = Seq[Event]()
+
+    val state = new DecisionProjection {
+      def applyEvent(event: Event): Unit = projectedEvents = projectedEvents :+ event
+    }
   }
 
 }

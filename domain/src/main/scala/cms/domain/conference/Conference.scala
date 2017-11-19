@@ -6,27 +6,24 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
 
   override type EventType = ConferenceEvent
 
-  private[this] val state = new DecisionProjection
-  history foreach state.apply
+  protected val state = new DecisionProjection {
+    var name, slug: String = _
 
-  private def this(name: String, slug: String) {
+    def applyEvent(event: ConferenceEvent): Unit = event match {
+      case e: ConferenceCreated =>
+        name = e.name
+        slug = e.slug
+      case e: ConferenceUpdated => name = e.name
+    }
+  }.computeFrom(history)
+
+  private def this(name: String, slug: String){
     this(slug)
     raise { ConferenceCreated(name, slug) }
   }
 
   def update(name: String): Unit = raise { ConferenceUpdated(id, name) }
 
-  private class DecisionProjection {
-    var name, slug: String = _
-
-    def apply(event: ConferenceEvent): Unit = event match {
-      case e: ConferenceCreated =>
-        name = e.name
-        slug = e.slug
-
-      case e: ConferenceUpdated => name = e.name
-    }
-  }
 }
 
 object Conference {
