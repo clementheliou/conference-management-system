@@ -1,4 +1,4 @@
-package cms.infrastructure.api.conference
+package cms.infrastructure.conference
 
 import cms.domain.CommandHandler
 import cms.domain.conference.{ConferenceCommand, CreateConference, UpdateConference}

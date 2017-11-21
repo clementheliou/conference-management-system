@@ -1,4 +1,4 @@
-package cms.infrastructure.repository
+package cms.infrastructure
 
 import cms.domain.{Event, EventSourcedAggregate}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
