@@ -2,17 +2,24 @@ package cms.application
 
 import javax.servlet.ServletContext
 
-import cms.domain.conference.ConferenceCommandHandler
-import cms.infrastructure.InMemoryEventSourcedRepository
-import cms.infrastructure.conference.Conferences
+import cms.domain.conference.{ConferenceCommandHandler, ConferenceCreated, ConferenceProjectionGenerator, ConferenceUpdated}
+import cms.infrastructure.conference.{Conferences, InMemoryConferenceProjectionRepository}
+import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository}
 import org.scalatra.LifeCycle
 
 final class ScalatraBootstrap extends LifeCycle {
 
   override def init(context: ServletContext){
-    val conferenceEventRepository = new InMemoryEventSourcedRepository
-    val conferenceCommandHandler = new ConferenceCommandHandler(conferenceEventRepository)
-    val conferencesEndpoint = new Conferences(conferenceCommandHandler)
+    val eventPublisher = new InMemoryEventPublisher
+    val eventSourcedRepository = new InMemoryEventSourcedRepository(eventPublisher)
+
+    val conferenceCommandHandler = new ConferenceCommandHandler(eventSourcedRepository)
+    val conferenceProjectionRepository = new InMemoryConferenceProjectionRepository
+    val conferenceProjectionGenerator = new ConferenceProjectionGenerator(conferenceProjectionRepository)
+    val conferencesEndpoint = new Conferences(conferenceCommandHandler, conferenceProjectionRepository)
+
+    eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceCreated => Unit)
+    eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceUpdated => Unit)
 
     context mount(conferencesEndpoint, "/api/conferences/*")
   }

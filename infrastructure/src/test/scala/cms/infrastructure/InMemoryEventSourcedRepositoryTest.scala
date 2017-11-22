@@ -1,12 +1,14 @@
 package cms.infrastructure
 
-import cms.domain.{Event, EventSourcedAggregate}
+import cms.domain.EventSourcedAggregate
+import cms.infrastructure.SpyEventHandler.haveBeenCalledTwice
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with OptionValues {
 
   trait Setup {
-    val repository = new InMemoryEventSourcedRepository
+    val eventPublisher = new InMemoryEventPublisher
+    val repository = new InMemoryEventSourcedRepository(eventPublisher)
 
     def setExistingEventStream(aggregateId: String, eventStream: DummyEvent*){
       val aggregate = new DummyAggregate(id = aggregateId)
@@ -75,6 +77,23 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
 
   }
 
+  it should "publish the pending events to make them available to subscribers" in new Setup {
+
+    // Given
+    val aggregate = new DummyAggregate(id = "an id")
+    aggregate raise DummyEvent(1)
+    aggregate raise DummyEvent(2)
+
+    val anEventHandler = new SpyEventHandler[DummyEvent]
+    eventPublisher subscribe anEventHandler
+
+    // When
+    repository.save(aggregate)
+
+    // Then
+    anEventHandler should haveBeenCalledTwice
+  }
+
   final class DummyAggregate(val id: String, val rehydratedEvents: Seq[DummyEvent] = Nil)
     extends EventSourcedAggregate {
 
@@ -83,14 +102,12 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     override def raise(event: DummyEvent): Unit = super.raise(event)
 
     protected[this] val state = new DecisionProjection {
-      def applyEvent(event: DummyEvent): Unit = {}
+      def applyEvent(event: DummyEvent): Unit ={}
     }
   }
 
   implicit val rehydrateFrom: (String, Seq[DummyEvent]) => DummyAggregate = {
     (id, history) => new DummyAggregate(id, history)
   }
-
-  case class DummyEvent(id: Int) extends Event
 
 }
