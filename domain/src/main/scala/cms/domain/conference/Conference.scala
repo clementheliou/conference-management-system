@@ -1,29 +1,38 @@
 package cms.domain.conference
 
 import cms.domain.{Event, EventSourcedAggregate}
+import com.typesafe.scalalogging.Logger
+
+import scala.collection.immutable.Map.empty
 
 final class Conference private(val id: String, history: Seq[ConferenceEvent] = Nil) extends EventSourcedAggregate {
 
   override type EventType = ConferenceEvent
 
-  protected val state = new DecisionProjection {
-    var name, slug: String = _
-
-    def applyEvent(event: ConferenceEvent): Unit = event match {
-      case e: ConferenceCreated =>
-        name = e.name
-        slug = e.slug
-      case e: ConferenceUpdated => name = e.name
-    }
-  }.computeFrom(history)
+  private[this] val logger = Logger(classOf[Conference])
+  protected val state = ConferenceDecisionProjection().computeFrom(history)
 
   private def this(name: String, slug: String){
     this(slug)
     raise { ConferenceCreated(name, slug) }
   }
 
+  def addSeats(seatType: String, quota: Int): Unit = state.seats.get(seatType) match {
+    case None => raise { SeatsAdded(id, seatType, quota) }
+    case Some(_) => logger.warn(s"Discard seats addition on existing seats (type: $seatType, conference: $id)")
+  }
+
   def update(name: String): Unit = raise { ConferenceUpdated(id, name) }
 
+  case class ConferenceDecisionProjection(name: String = "", slug: String = "", seats: Map[String, Int] = empty)
+    extends DecisionProjection {
+
+    def apply(event: ConferenceEvent) = event match {
+      case e: ConferenceCreated => copy(name = e.name, slug = e.slug)
+      case e: ConferenceUpdated => copy(name = e.name)
+      case e: SeatsAdded => copy(seats = seats + (e.seatType -> e.quota))
+    }
+  }
 }
 
 object Conference {
@@ -46,3 +55,5 @@ sealed trait ConferenceEvent extends Event
 case class ConferenceCreated(name: String, slug: String) extends ConferenceEvent
 
 case class ConferenceUpdated(id: String, name: String) extends ConferenceEvent
+
+case class SeatsAdded(conferenceId: String, seatType: String, quota: Int) extends ConferenceEvent

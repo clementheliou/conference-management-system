@@ -101,8 +101,10 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
 
     override def raise(event: DummyEvent): Unit = super.raise(event)
 
-    protected[this] val state = new DecisionProjection {
-      def applyEvent(event: DummyEvent): Unit ={}
+    protected[this] val state = DummyAggregateDecisionProjection().computeFrom(rehydratedEvents)
+
+    case class DummyAggregateDecisionProjection() extends DecisionProjection {
+      def apply(event: DummyEvent) = this
     }
   }
 

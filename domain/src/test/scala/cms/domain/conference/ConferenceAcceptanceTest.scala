@@ -58,6 +58,53 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     conferenceCommandHandler.handle(UpdateConference("mix-it-18", name = "MixIT 18"))
 
     // Then
-    conferenceEventRepository.find[Conference]("mix-it-18")(Conference.apply) shouldBe None
+    conferenceEventRepository.find[Conference]("mix-it-18") shouldBe None
+  }
+
+  "A seat type" can "be added to an existing conference with an initial quota" in new Setup {
+
+    // Given
+    val conferenceId = "mix-it-18"
+
+    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+
+    // When
+    conferenceCommandHandler handle AddSeatsToConference(conferenceId, seatType = "Workshop", quota = 100)
+
+    // Then
+    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
+      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
+      SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
+    )
+  }
+
+  it can "not be added if the conference has not been created before" in new Setup {
+
+    // When
+    conferenceCommandHandler handle AddSeatsToConference("mix-it-18", seatType = "Workshop", quota = 100)
+
+    // Then
+    conferenceEventRepository.find[Conference]("mix-it-18") shouldBe None
+  }
+
+  it can "not be added if the seat type already exists" in new Setup {
+
+    // Given
+    val conferenceId = "mix-it-18"
+
+    conferenceEventRepository.setHistory(
+      conferenceId,
+      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
+      SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
+    )
+
+    // When
+    conferenceCommandHandler handle AddSeatsToConference(conferenceId, seatType = "Workshop", quota = 50)
+
+    // Then
+    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
+      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
+      SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
+    )
   }
 }

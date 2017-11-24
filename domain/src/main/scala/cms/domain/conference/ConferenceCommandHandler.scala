@@ -8,8 +8,16 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository) extends
   private val logger = Logger(classOf[ConferenceCommandHandler])
 
   def handle(command: ConferenceCommand): Unit = command match {
+    case c: AddSeatsToConference => addSeatsToConference(c)
     case c: CreateConference => createConference(c)
     case c: UpdateConference => updateConference(c)
+  }
+
+  private def addSeatsToConference(c: AddSeatsToConference): Unit = repository.find[Conference](c.conferenceId) match {
+    case Some(conference) =>
+      conference.addSeats(c.seatType, c.quota)
+      repository save conference
+    case None => logger.warn(s"Discard seats addition command on missing conference (slug=${ c.conferenceId })")
   }
 
   private def createConference(c: CreateConference): Unit = repository.find[Conference](c.slug) match {

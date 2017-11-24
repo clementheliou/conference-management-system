@@ -15,14 +15,11 @@ trait EventSourcedAggregate extends Aggregate {
   def events = pendingEvents
 
   trait DecisionProjection {
-    def applyEvent(event: EventType): Unit
 
-    private def apply(event: EventType): this.type ={
-      applyEvent(event)
-      version += 1
-      this
+    def apply(event: EventType): DecisionProjection
+
+    def computeFrom(history: Seq[EventType]): this.type ={
+      history.foldLeft(this)((state, event) => { version += 1; state apply event }).asInstanceOf[this.type]
     }
-
-    def computeFrom(history: Seq[EventType]) = history.foldLeft(this)((state, event) => state.apply(event))
   }
 }
