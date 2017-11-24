@@ -1,12 +1,12 @@
 package cms.infrastructure
 
-import cms.domain.{EventSourcedAggregate, EventSourcedRepository, VersionedEvent}
+import cms.domain.{Event, EventSourcedAggregate, EventSourcedRepository, VersionedEvent}
 
 import scala.collection.mutable.{Map => MutableMap}
 
 final class InMemoryEventSourcedRepository(eventPublisher: InMemoryEventPublisher) extends EventSourcedRepository {
 
-  private[this] val eventStreams = MutableMap[String, Seq[VersionedEvent[_ <: EventSourcedAggregate#EventType]]]()
+  private[this] val eventStreams = MutableMap[String, Seq[VersionedEvent[Event]]]()
 
   def find[A <: EventSourcedAggregate](id: String)(implicit rehydrateFrom: (String, Seq[A#EventType]) => A) ={
     eventStreams.get(id)
