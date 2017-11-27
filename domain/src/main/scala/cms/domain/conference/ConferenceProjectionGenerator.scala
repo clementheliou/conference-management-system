@@ -6,7 +6,7 @@ final class ConferenceProjectionGenerator(repository: ConferenceProjectionReposi
   private val logger = Logger(classOf[ConferenceProjectionGenerator])
 
   def apply(event: ConferenceCreated){
-    repository save ConferenceProjection(event.slug, event.name, event.creationDate)
+    repository save ConferenceProjection(event.creationDate, event.name, event.slug)
   }
 
   def apply(event: ConferencePublished): Unit = repository.get(event.id) match {
