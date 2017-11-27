@@ -19,6 +19,7 @@ final class ScalatraBootstrap extends LifeCycle {
     val conferencesEndpoint = new Conferences(conferenceCommandHandler, conferenceProjectionRepository)
 
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceCreated => Unit)
+    eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferencePublished => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceUpdated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsAdded => Unit)
 

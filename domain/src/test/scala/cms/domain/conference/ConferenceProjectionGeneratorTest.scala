@@ -43,6 +43,24 @@ class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with Opti
     )
   }
 
+  it should "update the projection publication status on ConferencePublished" in new Setup {
+
+    // Given
+    conferenceProjectionGenerator.apply(ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"))
+    val conferencePublished = ConferencePublished("mix-it-18")
+
+    // When
+    conferenceProjectionGenerator apply conferencePublished
+
+    // Then
+    repository.get("mix-it-18").value shouldBe ConferenceProjection(
+      lastUpdate = conferencePublished.creationDate,
+      name = "MixIT 2018",
+      published = true,
+      slug = "mix-it-18"
+    )
+  }
+
   it should "update the projection seats on SeatsAdded" in new Setup {
 
     // Given

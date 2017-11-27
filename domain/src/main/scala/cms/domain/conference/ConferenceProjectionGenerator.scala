@@ -3,11 +3,15 @@ package cms.domain.conference
 import com.typesafe.scalalogging.Logger
 
 final class ConferenceProjectionGenerator(repository: ConferenceProjectionRepository) {
-
   private val logger = Logger(classOf[ConferenceProjectionGenerator])
 
   def apply(event: ConferenceCreated){
     repository save ConferenceProjection(event.slug, event.name, event.creationDate)
+  }
+
+  def apply(event: ConferencePublished): Unit = repository.get(event.id) match {
+    case Some(projection) => repository save projection.copy(lastUpdate = event.creationDate, published = true)
+    case None => logger.info(s"Discard $event due to missing projection")
   }
 
   def apply(event: ConferenceUpdated): Unit = repository.get(event.id) match {
