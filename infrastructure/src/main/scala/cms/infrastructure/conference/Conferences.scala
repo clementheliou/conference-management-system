@@ -31,6 +31,15 @@ class Conferences(
     }
   }
 
+  post("/publish") {
+    parsedBody.extractOpt[PublishConference] match {
+      case Some(command) =>
+        logger.info(s"Handling publication command from ${ request.body }")
+        commandHandler handle command
+      case None => logger.error(s"Unable to parse publication command from ${ request.body }")
+    }
+  }
+
   post("/seats") {
     parsedBody.extractOpt[AddSeatsToConference] match {
       case Some(command) =>

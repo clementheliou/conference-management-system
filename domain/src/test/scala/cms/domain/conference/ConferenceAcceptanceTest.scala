@@ -20,6 +20,23 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
       ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18")
   }
 
+  it can "be published" in new Setup {
+
+    // Given
+    val conferenceId = "mix-it-18"
+
+    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+
+    // When
+    conferenceCommandHandler handle PublishConference(id = "mix-it-18")
+
+    // Then
+    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
+      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
+      ConferencePublished(id = "mix-it-18")
+    )
+  }
+
   it can "be updated with a name" in new Setup {
 
     // Given
@@ -52,6 +69,15 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
   }
 
+  it can "not be published if not created before" in new Setup {
+
+    // When
+    conferenceCommandHandler handle PublishConference(id = "mix-it-18")
+
+    // Then
+    conferenceEventRepository.find[Conference]("mix-it-18") shouldBe None
+  }
+
   it can "not be updated if not created before" in new Setup {
 
     // When
@@ -59,6 +85,27 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
 
     // Then
     conferenceEventRepository.find[Conference]("mix-it-18") shouldBe None
+  }
+
+  it should "not be re-published if already published" in new Setup {
+
+    // Given
+    val conferenceId = "mix-it-18"
+
+    conferenceEventRepository.setHistory(
+      conferenceId,
+      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
+      ConferencePublished(id = conferenceId)
+    )
+
+    // When
+    conferenceCommandHandler handle PublishConference(id = conferenceId)
+
+    // Then
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs Seq(
+      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
+      ConferencePublished(id = "mix-it-18")
+    )
   }
 
   "A seat type" can "be added to an existing conference with an initial quota" in new Setup {

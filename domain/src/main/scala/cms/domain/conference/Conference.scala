@@ -22,13 +22,24 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
     case Some(_) => logger.warn(s"Discard seats addition on existing seats (type: $seatType, conference: $id)")
   }
 
+  def publish(){
+    if (!state.published) {
+      raise { ConferencePublished(id) }
+    }
+  }
+
   def update(name: String): Unit = raise { ConferenceUpdated(id, name) }
 
-  case class ConferenceDecisionProjection(name: String = "", slug: String = "", seats: Map[String, Int] = empty)
-    extends DecisionProjection {
+  case class ConferenceDecisionProjection(
+    name: String = "",
+    slug: String = "",
+    published: Boolean = false,
+    seats: Map[String, Int] = empty
+  ) extends DecisionProjection {
 
     def apply(event: ConferenceEvent) = event match {
       case e: ConferenceCreated => copy(name = e.name, slug = e.slug)
+      case _: ConferencePublished => copy(published = true)
       case e: ConferenceUpdated => copy(name = e.name)
       case e: SeatsAdded => copy(seats = seats + (e.seatType -> e.quota))
     }
@@ -53,6 +64,8 @@ object Conference {
 sealed trait ConferenceEvent extends Event
 
 case class ConferenceCreated(name: String, slug: String) extends ConferenceEvent
+
+case class ConferencePublished(id: String) extends ConferenceEvent
 
 case class ConferenceUpdated(id: String, name: String) extends ConferenceEvent
 
