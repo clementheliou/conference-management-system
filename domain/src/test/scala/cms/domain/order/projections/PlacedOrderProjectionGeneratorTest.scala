@@ -1,12 +1,13 @@
 package cms.domain.order.projections
 
+import cms.domain.InMemoryProjectionRepository
 import cms.domain.order.{OrderPlaced, Seat}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class PlacedOrderProjectionGeneratorTest extends FlatSpec with Matchers with OptionValues{
 
   trait Setup {
-    val projectionRepository = new InMemoryPlacedOrderProjectionRepository
+    val projectionRepository = new InMemoryProjectionRepository[PlacedOrderProjection] {}
     val projectionGenerator = new PlacedOrderProjectionGenerator(projectionRepository)
   }
 

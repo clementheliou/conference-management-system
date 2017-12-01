@@ -1,8 +1,9 @@
 package cms.domain.order.projections
 
+import cms.domain.ProjectionRepository
 import cms.domain.order.OrderPlaced
 
-final class PlacedOrderProjectionGenerator(repository: PlacedOrderProjectionRepository) {
+final class PlacedOrderProjectionGenerator(repository: ProjectionRepository[PlacedOrderProjection]) {
 
   def apply(event: OrderPlaced){
     repository save PlacedOrderProjection(

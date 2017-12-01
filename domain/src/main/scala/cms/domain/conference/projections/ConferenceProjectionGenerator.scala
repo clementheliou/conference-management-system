@@ -1,13 +1,14 @@
 package cms.domain.conference.projections
 
+import cms.domain.ProjectionRepository
 import cms.domain.conference._
 import com.typesafe.scalalogging.Logger
 
-final class ConferenceProjectionGenerator(repository: ConferenceProjectionRepository) {
+final class ConferenceProjectionGenerator(repository: ProjectionRepository[ConferenceProjection]) {
   private val logger = Logger(classOf[ConferenceProjectionGenerator])
 
   def apply(event: ConferenceCreated){
-    repository save ConferenceProjection(event.creationDate, event.name, event.slug)
+    repository save ConferenceProjection(event.slug, event.creationDate, event.name)
   }
 
   def apply(event: ConferencePublished): Unit = repository.get(event.id) match {

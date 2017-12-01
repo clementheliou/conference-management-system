@@ -1,8 +1,8 @@
 package cms.infrastructure.conference
 
-import cms.domain.CommandHandler
 import cms.domain.conference._
-import cms.domain.conference.projections.ConferenceProjectionRepository
+import cms.domain.conference.projections.ConferenceProjection
+import cms.domain.{CommandHandler, ProjectionRepository}
 import com.typesafe.scalalogging.Logger
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.ScalatraServlet
@@ -10,7 +10,7 @@ import org.scalatra.json.JacksonJsonSupport
 
 class Conferences(
   commandHandler: CommandHandler[ConferenceCommand],
-  conferenceProjectionRepository: ConferenceProjectionRepository
+  conferenceProjectionRepository: ProjectionRepository[ConferenceProjection]
 ) extends ScalatraServlet with JacksonJsonSupport {
 
   protected implicit lazy val jsonFormats: Formats = DefaultFormats

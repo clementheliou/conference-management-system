@@ -1,8 +1,6 @@
 package cms.domain.order.projections
 
-import cms.domain.ProjectionRepository
-
-trait PlacedOrderProjectionRepository extends ProjectionRepository[PlacedOrderProjection]
+import cms.domain.Projection
 
 case class PlacedOrderProjection(
   conferenceId: String,
@@ -10,4 +8,4 @@ case class PlacedOrderProjection(
   lastUpdate: Long,
   status: String,
   requestedSeats: (String, Int)*
-)
+) extends Projection

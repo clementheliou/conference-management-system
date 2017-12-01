@@ -3,14 +3,12 @@ package cms.application
 import javax.servlet.ServletContext
 
 import cms.domain.conference._
-import cms.domain.conference.projections.ConferenceProjectionGenerator
-import cms.domain.order.projections.PlacedOrderProjectionGenerator
+import cms.domain.conference.projections.{ConferenceProjection, ConferenceProjectionGenerator}
+import cms.domain.order.projections.{PlacedOrderProjection, PlacedOrderProjectionGenerator}
 import cms.domain.order.{OrderCommandHandler, OrderPlaced}
 import cms.infrastructure.conference.Conferences
-import cms.infrastructure.conference.projections.InMemoryConferenceProjectionRepository
 import cms.infrastructure.order.Orders
-import cms.infrastructure.order.projections.InMemoryPlacedOrderProjectionRepository
-import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, UUIDGenerator}
+import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, InMemoryProjectionRepository, UUIDGenerator}
 import org.scalatra.LifeCycle
 
 final class ScalatraBootstrap extends LifeCycle {
@@ -21,11 +19,11 @@ final class ScalatraBootstrap extends LifeCycle {
     val idGenerator = new UUIDGenerator
 
     val conferenceCommandHandler = new ConferenceCommandHandler(eventSourcedRepository)
-    val conferenceProjectionRepository = new InMemoryConferenceProjectionRepository
+    val conferenceProjectionRepository = new InMemoryProjectionRepository[ConferenceProjection] {}
     val conferenceProjectionGenerator = new ConferenceProjectionGenerator(conferenceProjectionRepository)
     val conferencesEndpoint = new Conferences(conferenceCommandHandler, conferenceProjectionRepository)
 
-    val placedOrderProjectionRepository = new InMemoryPlacedOrderProjectionRepository
+    val placedOrderProjectionRepository = new InMemoryProjectionRepository[PlacedOrderProjection] {}
     val placedOrderProjectionGenerator = new PlacedOrderProjectionGenerator(placedOrderProjectionRepository)
     val orderCommandHandler = new OrderCommandHandler(eventSourcedRepository, idGenerator)
     val ordersEndpoint = new Orders(orderCommandHandler, placedOrderProjectionRepository)

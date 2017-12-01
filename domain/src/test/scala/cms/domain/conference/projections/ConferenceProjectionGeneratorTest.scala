@@ -1,12 +1,13 @@
 package cms.domain.conference.projections
 
+import cms.domain.InMemoryProjectionRepository
 import cms.domain.conference.{ConferenceCreated, ConferencePublished, ConferenceUpdated, SeatsAdded}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with OptionValues {
 
   trait Setup {
-    val repository = new InMemoryConferenceProjectionRepository
+    val repository = new InMemoryProjectionRepository[ConferenceProjection]{}
     val conferenceProjectionGenerator = new ConferenceProjectionGenerator(repository)
   }
 
@@ -22,7 +23,7 @@ class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with Opti
     repository.get("mix-it-18").value shouldBe ConferenceProjection(
       lastUpdate = conferenceCreated.creationDate,
       name = "MixIT 18",
-      slug = "mix-it-18"
+      id = "mix-it-18"
     )
   }
 
@@ -39,7 +40,7 @@ class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with Opti
     repository.get("mix-it-18").value shouldBe ConferenceProjection(
       lastUpdate = conferenceUpdated.creationDate,
       name = "MixIT 18",
-      slug = "mix-it-18"
+      id = "mix-it-18"
     )
   }
 
@@ -57,7 +58,7 @@ class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with Opti
       lastUpdate = conferencePublished.creationDate,
       name = "MixIT 2018",
       published = true,
-      slug = "mix-it-18"
+      id = "mix-it-18"
     )
   }
 
@@ -74,7 +75,7 @@ class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with Opti
     repository.get("mix-it-18").value shouldBe ConferenceProjection(
       lastUpdate = seatsAdded.creationDate,
       name = "MixIT 2018",
-      slug = "mix-it-18",
+      id = "mix-it-18",
       seats = Map("Workshop" -> 100)
     )
   }
