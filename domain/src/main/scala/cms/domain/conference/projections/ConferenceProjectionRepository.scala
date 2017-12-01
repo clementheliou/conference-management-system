@@ -1,4 +1,4 @@
-package cms.domain.conference
+package cms.domain.conference.projections
 
 import cms.domain.ProjectionRepository
 

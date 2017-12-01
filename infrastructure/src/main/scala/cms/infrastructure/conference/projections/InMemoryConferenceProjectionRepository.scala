@@ -1,6 +1,6 @@
-package cms.infrastructure.conference
+package cms.infrastructure.conference.projections
 
-import cms.domain.conference.{ConferenceProjection, ConferenceProjectionRepository}
+import cms.domain.conference.projections.{ConferenceProjection, ConferenceProjectionRepository}
 
 import scala.collection.mutable.{Map => MutableMap}
 

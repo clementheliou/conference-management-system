@@ -2,6 +2,7 @@ package cms.infrastructure.conference
 
 import cms.domain.CommandHandler
 import cms.domain.conference._
+import cms.domain.conference.projections.ConferenceProjectionRepository
 import com.typesafe.scalalogging.Logger
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.ScalatraServlet

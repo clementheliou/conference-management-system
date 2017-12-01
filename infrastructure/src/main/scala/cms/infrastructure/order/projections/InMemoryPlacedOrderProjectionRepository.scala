@@ -1,4 +1,4 @@
-package cms.application
+package cms.infrastructure.order.projections
 
 import cms.domain.order.projections.{PlacedOrderProjection, PlacedOrderProjectionRepository}
 

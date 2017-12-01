@@ -3,10 +3,13 @@ package cms.application
 import javax.servlet.ServletContext
 
 import cms.domain.conference._
+import cms.domain.conference.projections.ConferenceProjectionGenerator
 import cms.domain.order.projections.PlacedOrderProjectionGenerator
 import cms.domain.order.{OrderCommandHandler, OrderPlaced}
-import cms.infrastructure.conference.{Conferences, InMemoryConferenceProjectionRepository}
+import cms.infrastructure.conference.Conferences
+import cms.infrastructure.conference.projections.InMemoryConferenceProjectionRepository
 import cms.infrastructure.order.Orders
+import cms.infrastructure.order.projections.InMemoryPlacedOrderProjectionRepository
 import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, UUIDGenerator}
 import org.scalatra.LifeCycle
 

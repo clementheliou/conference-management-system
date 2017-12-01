@@ -1,5 +1,6 @@
-package cms.domain.conference
+package cms.domain.conference.projections
 
+import cms.domain.conference._
 import com.typesafe.scalalogging.Logger
 
 final class ConferenceProjectionGenerator(repository: ConferenceProjectionRepository) {

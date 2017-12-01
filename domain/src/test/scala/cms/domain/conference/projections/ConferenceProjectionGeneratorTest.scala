@@ -1,6 +1,6 @@
-package cms.domain.conference
+package cms.domain.conference.projections
 
-import cms.domain.InMemoryConferenceProjectionRepository
+import cms.domain.conference.{ConferenceCreated, ConferencePublished, ConferenceUpdated, SeatsAdded}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class ConferenceProjectionGeneratorTest extends FlatSpec with Matchers with OptionValues {
