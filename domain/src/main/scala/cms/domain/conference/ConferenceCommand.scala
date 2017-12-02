@@ -8,6 +8,9 @@ case class AddSeatsToConference(conferenceId: String, seatType: String, quota: I
 
 case class CreateConference(name: String, slug: String) extends ConferenceCommand
 
+case class MakeSeatsReservation(orderId: String, conferenceId: String, request: (String, Int)*)
+  extends ConferenceCommand
+
 case class PublishConference(id: String) extends ConferenceCommand
 
 case class UpdateConference(id: String, name: String) extends ConferenceCommand

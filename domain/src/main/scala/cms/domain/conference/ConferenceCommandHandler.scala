@@ -10,6 +10,7 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository) extends
   def handle(command: ConferenceCommand): Unit = command match {
     case c: AddSeatsToConference => addSeatsToConference(c)
     case c: CreateConference => createConference(c)
+    case c: MakeSeatsReservation => makeSeatsReservation(c)
     case c: PublishConference => publishConference(c)
     case c: UpdateConference => updateConference(c)
   }
@@ -24,6 +25,13 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository) extends
   private def createConference(c: CreateConference): Unit = repository.find[Conference](c.slug) match {
     case Some(_) => logger.warn(s"Discard creation command on existing conference (slug=${ c.slug })")
     case None => repository save { Conference(c.name, c.slug) }
+  }
+
+  private def makeSeatsReservation(c: MakeSeatsReservation): Unit = repository.find[Conference](c.conferenceId) match {
+    case Some(conference) =>
+      conference.makeSeatsReservation(c.orderId, c.request: _*)
+      repository save conference
+    case None => throw new UnsupportedOperationException("Not implemented yet")
   }
 
   private def publishConference(c: PublishConference): Unit = repository.find[Conference](c.id) match {

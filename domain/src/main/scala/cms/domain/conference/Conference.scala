@@ -22,6 +22,13 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
     case Some(_) => logger.warn(s"Discard seats addition on existing seats (type: $seatType, conference: $id)")
   }
 
+  def makeSeatsReservation(orderId: String, seatsRequest: (String, Int)*){
+    if (!state.published) {
+      logger.warn(s"Reject seats reservation for a conference that is not published yet (id: $id)")
+      raise { SeatsReservationRejected(id, orderId, seatsRequest: _*) }
+    }
+  }
+
   def publish(){
     if (!state.published) {
       raise { ConferencePublished(id) }
@@ -42,6 +49,7 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
       case _: ConferencePublished => copy(published = true)
       case e: ConferenceUpdated => copy(name = e.name)
       case e: SeatsAdded => copy(seats = seats + (e.seatType -> e.quota))
+      case _: SeatsReservationRejected => this
     }
   }
 }
