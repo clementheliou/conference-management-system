@@ -12,5 +12,7 @@ case class ConferenceUpdated(id: String, name: String) extends ConferenceEvent
 
 case class SeatsAdded(conferenceId: String, seatType: String, quota: Int) extends ConferenceEvent
 
-case class SeatsReservationRejected(conferenceId: String, orderId: String, request: (String, Int)*)
+case class SeatsReserved(conferenceId: String, orderId: String, seats: (String, Int)) extends ConferenceEvent
+
+case class SeatsReservationRejected(conferenceId: String, orderId: String, request: (String, Int))
   extends ConferenceEvent

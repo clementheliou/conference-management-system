@@ -24,9 +24,11 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
 
   def makeSeatsReservation(orderId: String, seatsRequest: (String, Int)){
     if (state.published) {
-      val (seatType, _) = seatsRequest
+      val (seatType, quantity) = seatsRequest
 
-      if (!state.seats.contains(seatType)) {
+      if (state.seats.contains(seatType)) {
+        raise { SeatsReserved(id, orderId, seats = seatType -> quantity) }
+      } else {
         logger.warn(s"Reject seats reservation due to a missing seat type (id: $id)")
         raise { SeatsReservationRejected(id, orderId, seatsRequest) }
       }
@@ -57,6 +59,7 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
       case _: ConferencePublished => copy(published = true)
       case e: ConferenceUpdated => copy(name = e.name)
       case e: SeatsAdded => copy(seats = seats + (e.seatType -> e.quota))
+      case _: SeatsReserved => this
       case _: SeatsReservationRejected => this
     }
   }
