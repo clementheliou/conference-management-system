@@ -22,10 +22,18 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
     case Some(_) => logger.warn(s"Discard seats addition on existing seats (type: $seatType, conference: $id)")
   }
 
-  def makeSeatsReservation(orderId: String, seatsRequest: (String, Int)*){
-    if (!state.published) {
+  def makeSeatsReservation(orderId: String, seatsRequest: (String, Int)){
+    if (state.published) {
+      val (seatType, _) = seatsRequest
+
+      if (!state.seats.contains(seatType)) {
+        logger.warn(s"Reject seats reservation due to a missing seat type (id: $id)")
+        raise { SeatsReservationRejected(id, orderId, seatsRequest) }
+      }
+
+    } else {
       logger.warn(s"Reject seats reservation for a conference that is not published yet (id: $id)")
-      raise { SeatsReservationRejected(id, orderId, seatsRequest: _*) }
+      raise { SeatsReservationRejected(id, orderId, seatsRequest) }
     }
   }
 

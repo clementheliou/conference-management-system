@@ -29,7 +29,7 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository) extends
 
   private def makeSeatsReservation(c: MakeSeatsReservation): Unit = repository.find[Conference](c.conferenceId) match {
     case Some(conference) =>
-      conference.makeSeatsReservation(c.orderId, c.request: _*)
+      conference.makeSeatsReservation(c.orderId, c.request)
       repository save conference
     case None => logger.warn(s"Discard seats reservation command on missing conference (slug=${ c.conferenceId })")
   }

@@ -150,13 +150,28 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     // Then
   }
 
-  ignore should "reject a seats reservation for a missing seat type" in new Setup {
+  it should "reject a seats reservation for a missing seat type" in new Setup {
 
     // Given
+    conferenceEventRepository.setHistory(
+      "mix-it-18",
+      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
+      ConferencePublished(id = "mix-it-18")
+    )
 
     // When
+    conferenceCommandHandler handle MakeSeatsReservation(
+      orderId = "ID-1",
+      conferenceId = "mix-it-18",
+      request = "Conference" -> 3
+    )
 
     // Then
+    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
+      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
+      ConferencePublished(id = "mix-it-18"),
+      SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-1", request = "Conference" -> 3)
+    )
   }
 
   it should "discard a seats reservation if not created before" in new Setup {
