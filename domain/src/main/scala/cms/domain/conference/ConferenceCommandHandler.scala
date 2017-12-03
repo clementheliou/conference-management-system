@@ -31,7 +31,7 @@ final class ConferenceCommandHandler(repository: EventSourcedRepository) extends
     case Some(conference) =>
       conference.makeSeatsReservation(c.orderId, c.request: _*)
       repository save conference
-    case None => throw new UnsupportedOperationException("Not implemented yet")
+    case None => logger.warn(s"Discard seats reservation command on missing conference (slug=${ c.conferenceId })")
   }
 
   private def publishConference(c: PublishConference): Unit = repository.find[Conference](c.id) match {

@@ -159,6 +159,19 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     // Then
   }
 
+  it should "discard a seats reservation if not created before" in new Setup {
+
+    // When
+    conferenceCommandHandler handle MakeSeatsReservation(
+      orderId = "ID-1",
+      conferenceId = "mix-it-18",
+      request = "Workshop" -> 3
+    )
+
+    // Then
+    conferenceEventRepository.find[Conference]("mix-it-18") shouldBe None
+  }
+
   "A seat type" can "be added to an existing conference with an initial quota" in new Setup {
 
     // Given
