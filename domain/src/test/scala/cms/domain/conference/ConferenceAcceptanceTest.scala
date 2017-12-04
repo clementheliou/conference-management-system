@@ -158,13 +158,32 @@ class ConferenceAcceptanceTest extends FlatSpec with Matchers {
     )
   }
 
-  ignore should "reject a seats reservation for a seat type that is sold out" in new Setup {
+  it should "reject a seats reservation for a seat type with an insufficient quota" in new Setup {
 
     // Given
+    conferenceEventRepository.setHistory(
+      "mix-it-18",
+      ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
+      SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
+      ConferencePublished(id = "mix-it-18"),
+      SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 7)
+    )
 
     // When
+    conferenceCommandHandler handle MakeSeatsReservation(
+      orderId = "ID-2",
+      conferenceId = "mix-it-18",
+      request = "Workshop" -> 4
+    )
 
     // Then
+    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
+      ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
+      SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
+      ConferencePublished(id = "mix-it-18"),
+      SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 7),
+      SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-2", request = "Workshop" -> 4)
+    )
   }
 
   it should "reject a seats reservation for a missing seat type" in new Setup {

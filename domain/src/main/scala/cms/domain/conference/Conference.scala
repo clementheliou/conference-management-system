@@ -26,13 +26,18 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
     if (state.published) {
       val (seatType, quantity) = seatsRequest
 
-      if (state.seats.contains(seatType)) {
-        raise { SeatsReserved(id, orderId, seats = seatType -> quantity) }
-      } else {
-        logger.warn(s"Reject seats reservation due to a missing seat type (id: $id)")
-        raise { SeatsReservationRejected(id, orderId, seatsRequest) }
-      }
+      state.seats.get(seatType) match {
+        case Some(remainingSeats) if quantity <= remainingSeats =>
+          raise { SeatsReserved(id, orderId, seats = seatType -> quantity) }
 
+        case Some(remainingSeats) =>
+          logger.warn(s"Reject seats reservation due to insufficient seat quota (id: $id, $quantity > $remainingSeats)")
+          raise { SeatsReservationRejected(id, orderId, seatsRequest) }
+
+        case None =>
+          logger.warn(s"Reject seats reservation due to a missing seat type (id: $id)")
+          raise { SeatsReservationRejected(id, orderId, seatsRequest) }
+      }
     } else {
       logger.warn(s"Reject seats reservation for a conference that is not published yet (id: $id)")
       raise { SeatsReservationRejected(id, orderId, seatsRequest) }
@@ -48,18 +53,20 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
   def update(name: String): Unit = raise { ConferenceUpdated(id, name) }
 
   case class ConferenceDecisionProjection(
-    name: String = "",
-    slug: String = "",
+    conferenceName: String = "",
+    conferenceSlug: String = "",
     published: Boolean = false,
     seats: Map[String, Int] = empty
   ) extends DecisionProjection {
 
     def apply(event: ConferenceEvent) = event match {
-      case e: ConferenceCreated => copy(name = e.name, slug = e.slug)
-      case _: ConferencePublished => copy(published = true)
-      case e: ConferenceUpdated => copy(name = e.name)
-      case e: SeatsAdded => copy(seats = seats + (e.seatType -> e.quota))
-      case _: SeatsReserved => this
+      case ConferenceCreated(name, slug) => copy(name, slug)
+      case ConferencePublished(_) => copy(published = true)
+      case ConferenceUpdated(_, name) => copy(name)
+      case SeatsAdded(_, seatType, quota) => copy(seats = seats + (seatType -> quota))
+      case SeatsReserved(_, _, (seatType, quantity)) =>
+        val remainingSeats = seats(seatType) - quantity
+        copy(seats = seats + (seatType -> remainingSeats))
       case _: SeatsReservationRejected => this
     }
   }
