@@ -1,7 +1,7 @@
 package cms.domain.order.projections
 
 import cms.domain.InMemoryProjectionRepository
-import cms.domain.order.{OrderPlaced, Seat}
+import cms.domain.order.OrderPlaced
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class PlacedOrderProjectionGeneratorTest extends FlatSpec with Matchers with OptionValues{
@@ -14,11 +14,7 @@ class PlacedOrderProjectionGeneratorTest extends FlatSpec with Matchers with Opt
   "A placed order projection generator" should "create a projection on OrderPlaced" in new Setup {
 
     // Given
-    val orderPlaced = OrderPlaced(
-      orderId = "ID-1",
-      conferenceId = "mix-it-18",
-      seats = Seq(Seat(seatType = "Workshop", quantity = 3))
-    )
+    val orderPlaced = OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
 
     // When
     projectionGenerator apply orderPlaced

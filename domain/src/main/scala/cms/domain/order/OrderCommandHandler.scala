@@ -10,7 +10,15 @@ final class OrderCommandHandler(repository: EventSourcedRepository, idGenerator:
   private val logger = Logger(classOf[OrderCommandHandler])
 
   def handle(command: OrderCommand): Unit = command match {
+    case ConfirmSeatsReservation(orderId, seats) => confirmSeatsReservation(orderId, seats)
     case c: PlaceOrder => placeOrder(c)
+  }
+
+  private def confirmSeatsReservation(id: String, seats: (String, Int)): Unit = repository.find[Order](id) match {
+    case Some(order) =>
+      order.confirmSeatsReservation(seats)
+      repository save order
+    case None => logger.warn(s"Discard seats reservation confirmation command on missing order (id=$id)")
   }
 
   private def placeOrder(command: PlaceOrder): Unit = repository.find[Conference](command.conferenceId) match {
@@ -20,10 +28,11 @@ final class OrderCommandHandler(repository: EventSourcedRepository, idGenerator:
 
   private def placeOrderForConference(command: PlaceOrder, conference: Conference){
     val orderId = idGenerator.get
+    val (seatType, quantity) = command.seats
 
     repository.find[Order](orderId) match {
       case Some(_) => logger.warn(s"Discard order placing command on existing order (id=$orderId)")
-      case None => if (command.seats.nonEmpty) repository save Order(orderId, conference.id, command.seats)
+      case None => if (quantity > 0) repository save Order(orderId, conference.id, seatType -> quantity)
     }
   }
 }

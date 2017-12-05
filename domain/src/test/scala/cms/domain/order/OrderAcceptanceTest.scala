@@ -18,21 +18,17 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
     eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
 
     // When
-    orderCommandHandler.handle {
-      PlaceOrder(conferenceId = "mix-it-18", Seq(OrderSeat(seatType = "Workshop", quantity = 3)))
-    }
+    orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 3) }
 
     // Then
     eventSourcedRepository.getEventStream("ID-1") should contain only
-      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = Seq(Seat(seatType = "Workshop", quantity = 3)))
+      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
   }
 
   it can "not be placed for a missing conference" in new Setup {
 
     // When
-    orderCommandHandler.handle {
-      PlaceOrder(conferenceId = "mix-it-18", Seq(OrderSeat(seatType = "Workshop", quantity = 3)))
-    }
+    orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 3) }
 
     // Then
     eventSourcedRepository.find[Order]("ID-1") shouldBe None
@@ -44,7 +40,7 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
     eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
 
     // When
-    orderCommandHandler handle PlaceOrder(conferenceId = "mix-it-18", Nil)
+    orderCommandHandler handle PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 0)
 
     // Then
     eventSourcedRepository.find[Order]("ID-1") shouldBe None
@@ -58,16 +54,41 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
     eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
     eventSourcedRepository.setHistory(
       orderId,
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = Seq(Seat(seatType = "Workshop", quantity = 3)))
+      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
     )
 
     // When
-    orderCommandHandler.handle {
-      PlaceOrder(conferenceId = "mix-it-18", Seq(OrderSeat(seatType = "Workshop", quantity = 6)))
-    }
+    orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 6) }
 
     // Then
     eventSourcedRepository.getEventStream(orderId) should contain only
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = Seq(Seat(seatType = "Workshop", quantity = 3)))
+      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
+  }
+
+  "An order seats reservation" can "be confirmed" in new Setup {
+
+    // Given
+    eventSourcedRepository.setHistory(
+      "ID-1",
+      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
+    )
+
+    // When
+    orderCommandHandler handle ConfirmSeatsReservation(orderId = "ID-1", seats = "Workshop" -> 3)
+
+    // Then
+    eventSourcedRepository.getEventStream("ID-1") should contain inOrderOnly(
+      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3),
+      SeatsReservationConfirmed(orderId = "ID-1", seats = "Workshop" -> 3)
+    )
+  }
+
+  it can "not be confirmed for a missing order" in new Setup {
+
+    // When
+    orderCommandHandler handle ConfirmSeatsReservation(orderId = "ID-1", seats = "Workshop" -> 3)
+
+    // Then
+    eventSourcedRepository.find[Order]("ID-1") shouldBe None
   }
 }

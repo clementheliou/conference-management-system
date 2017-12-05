@@ -11,7 +11,7 @@ final class PlacedOrderProjectionGenerator(repository: ProjectionRepository[Plac
       event.orderId,
       lastUpdate = event.creationDate,
       status = "WAITING_FOR_RESERVATION",
-      requestedSeats = event.seats.map(seat => (seat.seatType, seat.quantity)): _*
+      requestedSeats = event.seats
     )
   }
 }

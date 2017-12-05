@@ -6,11 +6,17 @@ final class Order private(val id: String, history: Seq[OrderEvent] = Nil) extend
 
   type EventType = OrderEvent
 
-  protected[this] val state = null
+  protected[this] val state = OrderDecisionProjection().computeFrom(history)
 
-  private def this(id: String, conferenceId: String, seats: Seq[OrderSeat]){
+  private def this(id: String, conferenceId: String, seats: (String, Int)){
     this(id)
-    raise { OrderPlaced(id, conferenceId, seats.map(seat => Seat(seat.seatType, seat.quantity))) }
+    raise { OrderPlaced(id, conferenceId, seats) }
+  }
+
+  def confirmSeatsReservation(seats: (String, Int)): Unit = raise { SeatsReservationConfirmed(id, seats) }
+
+  case class OrderDecisionProjection() extends DecisionProjection {
+    def apply(event: OrderEvent) = this
   }
 }
 
@@ -18,7 +24,7 @@ object Order {
 
   implicit val rehydrateFrom: (String, Seq[OrderEvent]) => Order = Order.apply
 
-  def apply(id: String, conferenceId: String, seats: Seq[OrderSeat]) = new Order(id, conferenceId, seats)
+  def apply(id: String, conferenceId: String, seats: (String, Int)) = new Order(id, conferenceId, seats)
 
   def apply(id: String, history: Seq[OrderEvent]) ={
     if (history.isEmpty) {

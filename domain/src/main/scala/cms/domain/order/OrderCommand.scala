@@ -4,7 +4,6 @@ import cms.domain.Command
 
 sealed trait OrderCommand extends Command
 
-case class PlaceOrder(conferenceId: String, seats: Seq[OrderSeat]) extends OrderCommand
+case class ConfirmSeatsReservation(orderId: String, seats: (String, Int)) extends OrderCommand
 
-case class OrderSeat(seatType: String, quantity: Int)
-
+case class PlaceOrder(conferenceId: String, seats: (String, Int)) extends OrderCommand
