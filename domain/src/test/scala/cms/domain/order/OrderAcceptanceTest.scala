@@ -1,6 +1,5 @@
 package cms.domain.order
 
-import cms.domain.conference.ConferenceCreated
 import cms.domain.{InMemoryEventSourcedRepository, SequentialPrefixedIdGenerator}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -14,9 +13,6 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
 
   "An order" can "be placed for a single conference seat type" in new Setup {
 
-    // Given
-    eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
-
     // When
     orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 3) }
 
@@ -25,19 +21,7 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
       OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
   }
 
-  it can "not be placed for a missing conference" in new Setup {
-
-    // When
-    orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 3) }
-
-    // Then
-    eventSourcedRepository.find[Order]("ID-1") shouldBe None
-  }
-
   it can "not be placed without seats" in new Setup {
-
-    // Given
-    eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
 
     // When
     orderCommandHandler handle PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 0)
@@ -51,7 +35,6 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
     // Given
     val orderId = "ID-1"
 
-    eventSourcedRepository.setHistory("mix-it-18", ConferenceCreated(name = "MixIT 18", slug = "mix-it-18"))
     eventSourcedRepository.setHistory(
       orderId,
       OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)

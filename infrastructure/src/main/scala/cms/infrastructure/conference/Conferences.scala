@@ -9,7 +9,7 @@ import org.scalatra.ScalatraServlet
 import org.scalatra.json.JacksonJsonSupport
 
 class Conferences(
-  commandHandler: CommandHandler[ConferenceCommand],
+  commandHandler: CommandHandler[ConferenceCommand, Conference],
   conferenceProjectionRepository: ProjectionRepository[ConferenceProjection]
 ) extends ScalatraServlet with JacksonJsonSupport {
 

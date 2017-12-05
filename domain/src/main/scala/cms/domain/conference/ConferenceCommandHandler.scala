@@ -1,50 +1,16 @@
 package cms.domain.conference
 
 import cms.domain.{CommandHandler, EventSourcedRepository}
-import com.typesafe.scalalogging.Logger
 
-final class ConferenceCommandHandler(repository: EventSourcedRepository) extends CommandHandler[ConferenceCommand] {
-
-  private val logger = Logger(classOf[ConferenceCommandHandler])
+final class ConferenceCommandHandler(repository: EventSourcedRepository)
+  extends CommandHandler[ConferenceCommand, Conference](repository) {
 
   def handle(command: ConferenceCommand): Unit = command match {
-    case c: AddSeatsToConference => addSeatsToConference(c)
-    case c: CreateConference => createConference(c)
-    case c: MakeSeatsReservation => makeSeatsReservation(c)
-    case c: PublishConference => publishConference(c)
-    case c: UpdateConference => updateConference(c)
+    case AddSeatsToConference(id, seatType, quota) => handle(id, command) { _ addSeats(seatType, quota) }
+    case CreateConference(name, slug) => handleFirstCommand(slug, command) { () => Conference(name, slug) }
+    case MakeSeatsReservation(orderId, id, request) => handle(id, command) { _ makeSeatsReservation(orderId, request) }
+    case PublishConference(id) => handle(id, command) { _ publish() }
+    case UpdateConference(id, name) => handle(id, command) { _ update name }
   }
 
-  private def addSeatsToConference(c: AddSeatsToConference): Unit = repository.find[Conference](c.conferenceId) match {
-    case Some(conference) =>
-      conference.addSeats(c.seatType, c.quota)
-      repository save conference
-    case None => logger.warn(s"Discard seats addition command on missing conference (slug=${ c.conferenceId })")
-  }
-
-  private def createConference(c: CreateConference): Unit = repository.find[Conference](c.slug) match {
-    case Some(_) => logger.warn(s"Discard creation command on existing conference (slug=${ c.slug })")
-    case None => repository save { Conference(c.name, c.slug) }
-  }
-
-  private def makeSeatsReservation(c: MakeSeatsReservation): Unit = repository.find[Conference](c.conferenceId) match {
-    case Some(conference) =>
-      conference.makeSeatsReservation(c.orderId, c.request)
-      repository save conference
-    case None => logger.warn(s"Discard seats reservation command on missing conference (slug=${ c.conferenceId })")
-  }
-
-  private def publishConference(c: PublishConference): Unit = repository.find[Conference](c.id) match {
-    case Some(conference) =>
-      conference.publish()
-      repository save conference
-    case None => logger.warn(s"Discard publication command on missing conference (slug=${ c.id })")
-  }
-
-  private def updateConference(c: UpdateConference): Unit = repository.find[Conference](c.id) match {
-    case Some(conference) =>
-      conference.update(c.name)
-      repository.save(conference)
-    case None => logger.warn(s"Discard update command on missing conference (slug=${ c.id })")
-  }
 }

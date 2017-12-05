@@ -1,15 +1,15 @@
 package cms.infrastructure.order
 
-import cms.domain.ProjectionRepository
 import cms.domain.order.projections.PlacedOrderProjection
-import cms.domain.order.{OrderCommandHandler, PlaceOrder}
+import cms.domain.order.{Order, OrderCommand, PlaceOrder}
+import cms.domain.{CommandHandler, ProjectionRepository}
 import com.typesafe.scalalogging.Logger
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.ScalatraServlet
 import org.scalatra.json.JacksonJsonSupport
 
 final class Orders(
-  commandHandler: OrderCommandHandler,
+  commandHandler: CommandHandler[OrderCommand, Order],
   placedOrderProjectionRepository: ProjectionRepository[PlacedOrderProjection]
 ) extends ScalatraServlet with JacksonJsonSupport {
 
