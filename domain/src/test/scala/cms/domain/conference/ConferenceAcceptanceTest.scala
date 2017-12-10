@@ -1,12 +1,13 @@
 package cms.domain.conference
 
-import cms.domain.InMemoryEventSourcedRepository
+import cms.domain.{InMemoryEventPublisher, InMemoryEventSourcedRepository}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConferenceAcceptanceTest extends FlatSpec with Matchers {
 
   trait Setup {
-    val conferenceEventRepository = new InMemoryEventSourcedRepository
+    val eventPublisher = new InMemoryEventPublisher
+    val conferenceEventRepository = new InMemoryEventSourcedRepository(eventPublisher)
     val conferenceCommandHandler = new ConferenceCommandHandler(conferenceEventRepository)
   }
 

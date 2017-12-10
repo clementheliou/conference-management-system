@@ -5,7 +5,7 @@ import javax.servlet.ServletContext
 import cms.domain.conference._
 import cms.domain.conference.projections.{ConferenceProjection, ConferenceProjectionGenerator}
 import cms.domain.order.projections.{PlacedOrderProjection, PlacedOrderProjectionGenerator}
-import cms.domain.order.{OrderCommandHandler, OrderPlaced}
+import cms.domain.order.{OrderCommandHandler, OrderEventHandler, OrderPlaced}
 import cms.infrastructure.conference.Conferences
 import cms.infrastructure.order.Orders
 import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, InMemoryProjectionRepository, UUIDGenerator}
@@ -19,6 +19,7 @@ final class ScalatraBootstrap extends LifeCycle {
     val idGenerator = new UUIDGenerator
 
     val conferenceCommandHandler = new ConferenceCommandHandler(eventSourcedRepository)
+    val conferenceEventHandler = new ConferenceEventHandler(conferenceCommandHandler)
     val conferenceProjectionRepository = new InMemoryProjectionRepository[ConferenceProjection] {}
     val conferenceProjectionGenerator = new ConferenceProjectionGenerator(conferenceProjectionRepository)
     val conferencesEndpoint = new Conferences(conferenceCommandHandler, conferenceProjectionRepository)
@@ -26,13 +27,16 @@ final class ScalatraBootstrap extends LifeCycle {
     val placedOrderProjectionRepository = new InMemoryProjectionRepository[PlacedOrderProjection] {}
     val placedOrderProjectionGenerator = new PlacedOrderProjectionGenerator(placedOrderProjectionRepository)
     val orderCommandHandler = new OrderCommandHandler(eventSourcedRepository, idGenerator)
+    val orderEventHandler = new OrderEventHandler(orderCommandHandler)
     val ordersEndpoint = new Orders(orderCommandHandler, placedOrderProjectionRepository)
 
+    eventPublisher subscribe (conferenceEventHandler.apply: OrderPlaced => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceCreated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferencePublished => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceUpdated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsAdded => Unit)
 
+    eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: OrderPlaced => Unit)
 
     context mount(conferencesEndpoint, "/api/conferences/*")

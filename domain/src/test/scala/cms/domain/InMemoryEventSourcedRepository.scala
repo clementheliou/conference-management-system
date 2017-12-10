@@ -2,7 +2,7 @@ package cms.domain
 
 import scala.collection.mutable.{Map => MutableMap}
 
-final class InMemoryEventSourcedRepository extends EventSourcedRepository {
+final class InMemoryEventSourcedRepository(eventPublisher: InMemoryEventPublisher) extends EventSourcedRepository {
 
   private[this] val eventStreams = MutableMap[String, Seq[VersionedEvent[Event]]]()
 
@@ -14,6 +14,7 @@ final class InMemoryEventSourcedRepository extends EventSourcedRepository {
   def save[A <: EventSourcedAggregate](aggregate: A){
     val eventStream = eventStreams.getOrElse(aggregate.id, Nil) ++ aggregate.events
     eventStreams.put(aggregate.id, eventStream)
+    aggregate.events map { _.event } foreach { eventPublisher publish _ }
   }
 
   def getEventStream(id: String) = eventStreams(id).map(_.event)

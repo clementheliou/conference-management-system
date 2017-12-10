@@ -1,12 +1,13 @@
 package cms.domain.order
 
-import cms.domain.{InMemoryEventSourcedRepository, SequentialPrefixedIdGenerator}
+import cms.domain.{InMemoryEventPublisher, InMemoryEventSourcedRepository, SequentialPrefixedIdGenerator}
 import org.scalatest.{FlatSpec, Matchers}
 
 class OrderAcceptanceTest extends FlatSpec with Matchers {
 
   trait Setup {
-    val eventSourcedRepository = new InMemoryEventSourcedRepository
+    val eventPublisher = new InMemoryEventPublisher
+    val eventSourcedRepository = new InMemoryEventSourcedRepository(eventPublisher)
     val identifierGenerator = new SequentialPrefixedIdGenerator
     val orderCommandHandler = new OrderCommandHandler(eventSourcedRepository, identifierGenerator)
   }
