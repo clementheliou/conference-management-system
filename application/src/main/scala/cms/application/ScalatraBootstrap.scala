@@ -5,7 +5,7 @@ import javax.servlet.ServletContext
 import cms.domain.conference._
 import cms.domain.conference.projections.{ConferenceProjection, ConferenceProjectionGenerator}
 import cms.domain.order.projections.{PlacedOrderProjection, PlacedOrderProjectionGenerator}
-import cms.domain.order.{OrderCommandHandler, OrderEventHandler, OrderPlaced}
+import cms.domain.order.{OrderCommandHandler, OrderEventHandler, OrderPlaced, SeatsReservationConfirmed}
 import cms.infrastructure.conference.Conferences
 import cms.infrastructure.order.Orders
 import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, InMemoryProjectionRepository, UUIDGenerator}
@@ -30,15 +30,17 @@ final class ScalatraBootstrap extends LifeCycle {
     val orderEventHandler = new OrderEventHandler(orderCommandHandler)
     val ordersEndpoint = new Orders(orderCommandHandler, placedOrderProjectionRepository)
 
-    eventPublisher subscribe (conferenceEventHandler.apply: OrderPlaced => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceCreated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferencePublished => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceUpdated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsAdded => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsReserved => Unit)
 
-    eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: OrderPlaced => Unit)
+    eventPublisher subscribe (placedOrderProjectionGenerator.apply: SeatsReservationConfirmed => Unit)
+
+    eventPublisher subscribe (conferenceEventHandler.apply: OrderPlaced => Unit)
+    eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
 
     context mount(conferencesEndpoint, "/api/conferences/*")
     context mount(ordersEndpoint, "/api/orders/*")

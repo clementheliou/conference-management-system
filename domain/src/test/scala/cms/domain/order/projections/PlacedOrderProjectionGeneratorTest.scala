@@ -1,7 +1,7 @@
 package cms.domain.order.projections
 
 import cms.domain.InMemoryProjectionRepository
-import cms.domain.order.OrderPlaced
+import cms.domain.order.{OrderPlaced, SeatsReservationConfirmed}
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
 
 class PlacedOrderProjectionGeneratorTest extends FlatSpec with Matchers with OptionValues{
@@ -26,6 +26,26 @@ class PlacedOrderProjectionGeneratorTest extends FlatSpec with Matchers with Opt
       lastUpdate = orderPlaced.creationDate,
       status = "WAITING_FOR_RESERVATION",
       requestedSeats = "Workshop" -> 3
+    )
+  }
+
+  it should "update the order status on SeatsReservationConfirmed" in new Setup {
+
+    // Given
+    projectionGenerator apply OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
+    val seatsReservationConfirmed = SeatsReservationConfirmed(orderId = "ID-1", seats = "Workshop" -> 3)
+
+    // When
+    projectionGenerator apply seatsReservationConfirmed
+
+    // Then
+    projectionRepository.get("ID-1").value shouldEqual PlacedOrderProjection(
+      conferenceId = "mix-it-18",
+      id = "ID-1",
+      lastUpdate = seatsReservationConfirmed.creationDate,
+      status = "WAITING_FOR_PAYMENT",
+      requestedSeats = "Workshop" -> 3,
+      reservedSeats = Some("Workshop" -> 3)
     )
   }
 }

@@ -7,5 +7,6 @@ case class PlacedOrderProjection(
   id: String,
   lastUpdate: Long,
   status: String,
-  requestedSeats: (String, Int)
+  requestedSeats: (String, Int),
+  reservedSeats: Option[(String, Int)] = None
 ) extends Projection
