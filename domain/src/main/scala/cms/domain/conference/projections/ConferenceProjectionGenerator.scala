@@ -28,4 +28,16 @@ final class ConferenceProjectionGenerator(repository: ProjectionRepository[Confe
     )
     case None => logger.info(s"Discard $event due to missing projection")
   }
+
+  def apply(event: SeatsReserved): Unit = repository.get(event.conferenceId) match {
+    case Some(projection) =>
+      val (seatType, quantity) = event.seats
+      val remainingSeats = projection.seats(seatType) - quantity
+
+      repository save projection.copy(
+        lastUpdate = event.creationDate,
+        seats = projection.seats + (seatType -> remainingSeats)
+      )
+    case None => logger.info(s"Discard $event due to missing projection")
+  }
 }

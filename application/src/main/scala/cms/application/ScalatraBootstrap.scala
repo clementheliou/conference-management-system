@@ -35,6 +35,7 @@ final class ScalatraBootstrap extends LifeCycle {
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferencePublished => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: ConferenceUpdated => Unit)
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsAdded => Unit)
+    eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsReserved => Unit)
 
     eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: OrderPlaced => Unit)
