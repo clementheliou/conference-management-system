@@ -10,10 +10,13 @@ lazy val sharedSettings = Seq(
 )
 
 lazy val domain = project.settings(
+  fork in Test := true,
+  javaOptions in Test += "-Djgiven.report.dir=target/jgiven-reports/json",
   name := "domain",
   organization := "com.github.clementheliou.cms",
   sharedSettings,
   libraryDependencies ++= sharedDependencies,
+  libraryDependencies ++= Seq(jGiven, jGivenReport, jUnit, sbtJUnitInterface),
 )
 
 lazy val infrastructure = project
@@ -43,3 +46,13 @@ lazy val root = (project in file("."))
     organization := "com.github.clementheliou",
     sharedSettings
   )
+
+lazy val livingDocumentation = taskKey[Unit]("Generate HTML5 report containing business features and scenarios.")
+livingDocumentation := Def.sequential(
+  test in domain in Test,
+  runMain in domain in Test toTask
+    """ com.tngtech.jgiven.report.ReportGenerator
+      |--customcss=src/test/resources/jgiven/custom.css
+      |--targetDir=target/jgiven-reports/html
+      |"--title=Conference Management System" """.stripMargin
+).value
