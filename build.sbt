@@ -1,7 +1,7 @@
 import Dependencies._
 import sbt.Keys.libraryDependencies
 
-lazy val sharedDependencies = Seq(logback, scalaLogging, scalaTest)
+lazy val sharedDependencies = Seq(logback, `scala-logging`, scalatest)
 
 lazy val sharedSettings = Seq(
   scalacOptions += "-Xfatal-warnings",
@@ -16,7 +16,7 @@ lazy val domain = project.settings(
   organization := "com.github.clementheliou.cms",
   sharedSettings,
   libraryDependencies ++= sharedDependencies,
-  libraryDependencies ++= Seq(jGiven, jGivenReport, jUnit, sbtJUnitInterface),
+  libraryDependencies ++= Seq(`jgiven-html5-report`, `jgiven-junit`, junit, `junit-interface`),
 )
 
 lazy val infrastructure = project
@@ -26,7 +26,7 @@ lazy val infrastructure = project
     organization := "com.github.clementheliou.cms",
     sharedSettings,
     libraryDependencies ++= sharedDependencies,
-    libraryDependencies ++= Seq(javaxServletApi, json4sJackson, scalatra, scalatraJson)
+    libraryDependencies ++= Seq(`javax.servlet-api`, `json4s-jackson`, scalatra, `scalatra-json`)
   )
 
 lazy val application = project
@@ -36,7 +36,7 @@ lazy val application = project
     organization := "com.github.clementheliou.cms",
     sharedSettings,
     libraryDependencies ++= sharedDependencies,
-    libraryDependencies ++= Seq(jettyServer, jettyServlet, jettyWebapp, scalatra)
+    libraryDependencies ++= Seq(`jetty-server`, `jetty-servlet`, `jetty-webapp`, scalatra)
   )
 
 lazy val root = (project in file("."))
