@@ -35,7 +35,7 @@ final class Conference private(val id: String, history: Seq[ConferenceEvent] = N
           raise { SeatsReservationRejected(id, orderId, seatsRequest) }
 
         case None =>
-          logger.warn(s"Reject seats reservation due to a missing seat type (id: $id)")
+          logger.warn(s"Reject seats reservation due to a missing seat type (id: $id, seat type: $seatType)")
           raise { SeatsReservationRejected(id, orderId, seatsRequest) }
       }
     } else {

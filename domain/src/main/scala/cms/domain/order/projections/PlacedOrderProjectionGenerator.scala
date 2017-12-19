@@ -1,7 +1,7 @@
 package cms.domain.order.projections
 
 import cms.domain.ProjectionRepository
-import cms.domain.order.{OrderPlaced, SeatsReservationConfirmed}
+import cms.domain.order.{OrderPlaced, OrderRejected, SeatsReservationConfirmed}
 import com.typesafe.scalalogging.Logger
 
 final class PlacedOrderProjectionGenerator(repository: ProjectionRepository[PlacedOrderProjection]) {
@@ -16,6 +16,11 @@ final class PlacedOrderProjectionGenerator(repository: ProjectionRepository[Plac
       status = "WAITING_FOR_RESERVATION",
       requestedSeats = event.seats
     )
+  }
+
+  def apply(event: OrderRejected): Unit = repository.get(event.orderId) match {
+    case Some(projection) => repository save projection.copy(lastUpdate = event.creationDate, status = "REJECTED")
+    case None => logger.info(s"Discard $event due to missing projection")
   }
 
   def apply(event: SeatsReservationConfirmed): Unit = repository.get(event.orderId) match {

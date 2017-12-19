@@ -4,8 +4,8 @@ import javax.servlet.ServletContext
 
 import cms.domain.conference._
 import cms.domain.conference.projections.{ConferenceProjection, ConferenceProjectionGenerator}
+import cms.domain.order._
 import cms.domain.order.projections.{PlacedOrderProjection, PlacedOrderProjectionGenerator}
-import cms.domain.order.{OrderCommandHandler, OrderEventHandler, OrderPlaced, SeatsReservationConfirmed}
 import cms.infrastructure.conference.Conferences
 import cms.infrastructure.order.Orders
 import cms.infrastructure.{InMemoryEventPublisher, InMemoryEventSourcedRepository, InMemoryProjectionRepository, UUIDGenerator}
@@ -37,6 +37,7 @@ final class ScalatraBootstrap extends LifeCycle {
     eventPublisher subscribe (conferenceProjectionGenerator.apply: SeatsReserved => Unit)
 
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: OrderPlaced => Unit)
+    eventPublisher subscribe (placedOrderProjectionGenerator.apply: OrderRejected => Unit)
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: SeatsReservationConfirmed => Unit)
 
     eventPublisher subscribe (conferenceEventHandler.apply: OrderPlaced => Unit)
