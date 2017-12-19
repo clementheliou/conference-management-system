@@ -11,6 +11,7 @@ final class OrderCommandHandler(repository: EventSourcedRepository, idGenerator:
       val orderId = idGenerator.get
       handleFirstCommand(orderId, command) { () => Order(orderId, conferenceId, seatType -> quantity) }
     }
+    case RejectOrder(orderId) => handle(orderId, command) { _ reject() }
   }
 
 }

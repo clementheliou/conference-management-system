@@ -1,6 +1,6 @@
 package cms.domain.features.stages
 
-import cms.domain.conference.{ConferenceCommandHandler, ConferenceEventHandler}
+import cms.domain.conference.{ConferenceCommandHandler, ConferenceEventHandler, SeatsReservationRejected, SeatsReserved}
 import cms.domain.order.{OrderCommandHandler, OrderEventHandler, PlaceOrder}
 import cms.domain.{InMemoryEventPublisher, InMemoryEventSourcedRepository, SequentialPrefixedIdGenerator}
 import com.tngtech.jgiven.Stage
@@ -23,7 +23,8 @@ class WhenRegistrantPlaceOrder extends Stage[WhenRegistrantPlaceOrder] {
     val orderEventHandler = new OrderEventHandler(orderCommandHandler)
 
     eventPublisher subscribe conferenceEventHandler.apply
-    eventPublisher subscribe orderEventHandler.apply
+    eventPublisher subscribe (orderEventHandler.apply: SeatsReservationRejected => Unit)
+    eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
   }
 
   def a_registrant_place_an_order_for_$_$_seats(seatsRequest: Int, @Quoted seatType: String){

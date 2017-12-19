@@ -7,3 +7,5 @@ sealed trait OrderCommand extends Command
 case class ConfirmSeatsReservation(orderId: String, seats: (String, Int)) extends OrderCommand
 
 case class PlaceOrder(conferenceId: String, seats: (String, Int)) extends OrderCommand
+
+case class RejectOrder(orderId:String) extends OrderCommand

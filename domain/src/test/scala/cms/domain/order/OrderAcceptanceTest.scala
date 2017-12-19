@@ -49,6 +49,26 @@ class OrderAcceptanceTest extends FlatSpec with Matchers {
       OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
   }
 
+  it can "be rejected" in new Setup {
+
+    // Given
+    val orderId = "ID-1"
+
+    eventSourcedRepository.setHistory(
+      orderId,
+      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
+    )
+
+    // When
+    orderCommandHandler handle RejectOrder(orderId)
+
+    // Then
+    eventSourcedRepository.getEventStream(orderId) should contain inOrderOnly(
+      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3),
+      OrderRejected(orderId, conferenceId = "mix-it-18")
+    )
+  }
+
   "An order seats reservation" can "be confirmed" in new Setup {
 
     // Given

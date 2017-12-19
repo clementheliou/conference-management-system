@@ -1,7 +1,7 @@
 package cms.domain.features.stages
 
-import cms.domain.conference.SeatsReserved
-import cms.domain.order.{OrderPlaced, SeatsReservationConfirmed}
+import cms.domain.conference.{SeatsReservationRejected, SeatsReserved}
+import cms.domain.order.{OrderPlaced, OrderRejected, SeatsReservationConfirmed}
 import cms.domain.{Event, InMemoryEventSourcedRepository}
 import com.tngtech.jgiven.Stage
 import com.tngtech.jgiven.annotation.{ExpectedScenarioState, Quoted}
@@ -15,7 +15,7 @@ class ThenSeatsAreReserved extends Stage[ThenSeatsAreReserved] with Matchers {
 
   @ExpectedScenarioState var eventSourcedRepository: InMemoryEventSourcedRepository = _
 
-  def $_$_seats_are_reserved(seatsRequest: Int, @Quoted seatType: String){
+  def $_$_seats_are_reserved(seatsRequest: Int, @Quoted seatType: String) ={
     eventSourcedRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs
       conferenceHistory :+ SeatsReserved(conferenceId, orderId = "ID-1", seatType -> seatsRequest)
 
@@ -23,6 +23,20 @@ class ThenSeatsAreReserved extends Stage[ThenSeatsAreReserved] with Matchers {
       OrderPlaced(orderId = "ID-1", conferenceId, seatType -> seatsRequest),
       SeatsReservationConfirmed(orderId = "ID-1", seatType -> seatsRequest)
     )
+
+    self()
+  }
+
+  def the_$_$_seats_are_not_reserved(seatsRequest: Int, @Quoted seatType: String) ={
+    eventSourcedRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs
+      conferenceHistory :+ SeatsReservationRejected(conferenceId, orderId = "ID-1", seatType -> seatsRequest)
+
+    eventSourcedRepository.getEventStream("ID-1") should contain inOrderOnly(
+      OrderPlaced(orderId = "ID-1", conferenceId, seatType -> seatsRequest),
+      OrderRejected(orderId = "ID-1", conferenceId)
+    )
+
+    self()
   }
 
 }

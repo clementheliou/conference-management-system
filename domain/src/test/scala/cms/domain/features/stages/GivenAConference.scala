@@ -15,7 +15,7 @@ class GivenAConference extends Stage[GivenAConference] {
 
   @ProvidedScenarioState var history: Seq[Event] = _
 
-  def a_published_conference_with_a_quota_of_$_$_seats(quota: Int, @Quoted seatType: String){
+  def a_conference_with_a_quota_of_$_$_seats(quota: Int, @Quoted seatType: String){
     history = Seq(
       ConferenceCreated(name = "MixIT", conferenceId),
       SeatsAdded(conferenceId, seatType, quota),

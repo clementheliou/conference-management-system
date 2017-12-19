@@ -40,6 +40,7 @@ final class ScalatraBootstrap extends LifeCycle {
     eventPublisher subscribe (placedOrderProjectionGenerator.apply: SeatsReservationConfirmed => Unit)
 
     eventPublisher subscribe (conferenceEventHandler.apply: OrderPlaced => Unit)
+    eventPublisher subscribe (orderEventHandler.apply: SeatsReservationRejected => Unit)
     eventPublisher subscribe (orderEventHandler.apply: SeatsReserved => Unit)
 
     context mount(conferencesEndpoint, "/api/conferences/*")

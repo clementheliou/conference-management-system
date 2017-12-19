@@ -15,8 +15,13 @@ final class Order private(val id: String, history: Seq[OrderEvent] = Nil) extend
 
   def confirmSeatsReservation(seats: (String, Int)): Unit = raise { SeatsReservationConfirmed(id, seats) }
 
-  case class OrderDecisionProjection() extends DecisionProjection {
-    def apply(event: OrderEvent) = this
+  def reject(): Unit = raise { OrderRejected(id, state.conferenceId) }
+
+  case class OrderDecisionProjection(conferenceId: String = "") extends DecisionProjection {
+    def apply(event: OrderEvent) = event match {
+      case OrderPlaced(_, conference, _) => copy(conferenceId = conference)
+      case _ => this
+    }
   }
 }
 
