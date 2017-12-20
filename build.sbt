@@ -14,6 +14,7 @@ lazy val domain = project.settings(
   organization := "com.github.clementheliou.cms",
   sharedSettings,
   libraryDependencies ++= sharedDependencies,
+  libraryDependencies ++= Seq(cucumberJUnit, cucumberScala, jUnit, sbtJUnitInterface)
 )
 
 lazy val infrastructure = project
