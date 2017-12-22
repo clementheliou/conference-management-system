@@ -29,7 +29,7 @@ class PlaceOrderForConference extends FeatureSpec with Matchers with GivenWhenTh
         val quota = 10
         val seatType = "Workshop"
 
-        Given(s"a published conference with following quotas: ${ seatType -> quota }")
+        Given(s"""a conference with a quota of $quota "$seatType" seats""")
         eventSourcedRepository.setHistory(
           "mix-it-18",
           ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
@@ -39,10 +39,10 @@ class PlaceOrderForConference extends FeatureSpec with Matchers with GivenWhenTh
 
         val seatsRequest = 8
 
-        When(s"a registrant place an order for ${ seatsRequest } ${ seatType } seats")
+        When(s"""a registrant place an order for ${ seatsRequest } "${ seatType }" seats""")
         orderCommandHandler handle PlaceOrder(conferenceId = "mix-it-18", seatType -> seatsRequest)
 
-        Then("the requested seats are successfully reserved")
+        Then(s"""$seatsRequest "$seatType" seats are reserved""")
         eventSourcedRepository.getEventStream("mix-it-18") should contain inOrderOnly(
           ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
           SeatsAdded(conferenceId = "mix-it-18", seatType, quota),
