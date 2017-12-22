@@ -12,8 +12,13 @@ lazy val sharedSettings = Seq(
 lazy val domain = project.settings(
   name := "domain",
   organization := "com.github.clementheliou.cms",
+  testOptions in Test ++= Seq(
+    Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/test-reports"),
+    Tests.Argument(TestFrameworks.ScalaTest, "-o")
+  ),
   sharedSettings,
   libraryDependencies ++= sharedDependencies,
+  libraryDependencies ++= Seq(pegdown)
 )
 
 lazy val infrastructure = project

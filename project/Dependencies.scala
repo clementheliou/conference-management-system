@@ -10,6 +10,7 @@ object Dependencies {
 
   val `json4s-jackson` = "org.json4s" %% "json4s-jackson" % "3.5.3"
   val logback = "ch.qos.logback" % "logback-classic" % "1.2.3"
+  val pegdown = "org.pegdown" % "pegdown" % "1.6.0" % "test"
   val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   val scalatest = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
