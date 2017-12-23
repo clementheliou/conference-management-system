@@ -8,6 +8,6 @@ import org.junit.runner.RunWith
 @CucumberOptions(
   features = Array("classpath:features"),
   glue = Array("classpath:cms.domain.features.steps"),
-  plugin = Array("pretty")
+  plugin = Array("pretty", "html:target/cucumber")
 )
 class FeaturesTestRunner {}
