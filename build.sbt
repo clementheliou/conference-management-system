@@ -16,7 +16,7 @@ lazy val domain = project.settings(
   organization := "com.github.clementheliou.cms",
   sharedSettings,
   libraryDependencies ++= sharedDependencies,
-  libraryDependencies ++= Seq(`jgiven-html5-report`, `jgiven-junit`, junit, `junit-interface`),
+  libraryDependencies ++= Seq(`jgiven-html5-report`, `jgiven-junit`, junit),
 )
 
 lazy val infrastructure = project

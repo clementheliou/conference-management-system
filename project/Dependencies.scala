@@ -13,7 +13,6 @@ object Dependencies {
   val `jgiven-html5-report` = "com.tngtech.jgiven" % "jgiven-html5-report" % jGivenVersion % "test"
   val `json4s-jackson` = "org.json4s" %% "json4s-jackson" % "3.5.3"
   val junit = "junit" % "junit" % "4.12" % "test"
-  val `junit-interface` = "com.novocode" % "junit-interface" % "0.11" % "test" exclude("junit", "junit")
   val logback = "ch.qos.logback" % "logback-classic" % "1.2.3"
   val `scala-logging` = "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
   val scalatest = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
