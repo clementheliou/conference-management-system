@@ -28,14 +28,14 @@ class PlaceOrderForConference extends FeatureSpec with Matchers with GivenWhenTh
 
         val quota = 10
         val seatType = "Workshop"
-
-        Given(s"""a conference with a quota of $quota "$seatType" seats""")
-        eventSourcedRepository.setHistory(
-          "mix-it-18",
+        val conferenceEvents = Seq(
           ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
           SeatsAdded(conferenceId = "mix-it-18", seatType, quota),
           ConferencePublished(id = "mix-it-18")
         )
+
+        Given(s"""a conference with a quota of $quota "$seatType" seats""")
+        eventSourcedRepository.setHistory("mix-it-18", conferenceEvents: _*)
 
         val seatsRequest = 8
 
@@ -43,11 +43,8 @@ class PlaceOrderForConference extends FeatureSpec with Matchers with GivenWhenTh
         orderCommandHandler handle PlaceOrder(conferenceId = "mix-it-18", seatType -> seatsRequest)
 
         Then(s"""$seatsRequest "$seatType" seats are reserved""")
-        eventSourcedRepository.getEventStream("mix-it-18") should contain inOrderOnly(
-          ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
-          SeatsAdded(conferenceId = "mix-it-18", seatType, quota),
-          ConferencePublished(id = "mix-it-18"),
-          SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seatType -> seatsRequest)
+        eventSourcedRepository.getEventStream("mix-it-18") should contain theSameElementsInOrderAs (
+          conferenceEvents :+ SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seatType -> seatsRequest)
         )
 
         eventSourcedRepository.getEventStream("ID-1") should contain inOrderOnly(
