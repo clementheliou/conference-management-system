@@ -29,13 +29,14 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
   it should "get a rehydrated aggregate from its existing event stream" in new Setup {
 
     // Given
-    setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
+    val history = Seq(DummyEvent(1), DummyEvent(2))
+    setExistingEventStream("an id", history: _*)
 
     // When
     val maybeAggregate = repository.find[DummyAggregate]("an id")
 
     // Then
-    maybeAggregate.value.rehydratedEvents should contain inOrderOnly(DummyEvent(1), DummyEvent(2))
+    maybeAggregate.value.rehydratedEvents should contain theSameElementsInOrderAs history
   }
 
   it should "create an event stream from the aggregate pending events if not exists" in new Setup {
@@ -58,7 +59,8 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
   it should "append the pending events to the existing event stream" in new Setup {
 
     // Given
-    setExistingEventStream("an id", DummyEvent(1), DummyEvent(2))
+    val history = Seq(DummyEvent(1), DummyEvent(2))
+    setExistingEventStream("an id", history: _*)
 
     val aggregate = new DummyAggregate(id = "an id")
     aggregate raise DummyEvent(3)
@@ -68,13 +70,8 @@ class InMemoryEventSourcedRepositoryTest extends FlatSpec with Matchers with Opt
     repository.save(aggregate)
 
     // Then
-    repository.find[DummyAggregate]("an id").value.rehydratedEvents should contain inOrderOnly(
-      DummyEvent(1),
-      DummyEvent(2),
-      DummyEvent(3),
-      DummyEvent(4)
-    )
-
+    repository.find[DummyAggregate]("an id").value.rehydratedEvents should contain theSameElementsInOrderAs
+      history :+ DummyEvent(3) :+ DummyEvent(4)
   }
 
   it should "publish the pending events to make them available to subscribers" in new Setup {

@@ -25,49 +25,47 @@ class ConferenceTest extends FlatSpec with Matchers {
 
     // Given
     val conferenceId = "mix-it-18"
+    val history = Seq(ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
 
-    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+    conferenceEventRepository.setHistory(conferenceId, history: _*)
 
     // When
     conferenceCommandHandler handle PublishConference(id = "mix-it-18")
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
-      ConferencePublished(id = "mix-it-18")
-    )
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs
+      history :+ ConferencePublished(id = "mix-it-18")
   }
 
   it can "be updated with a name" in new Setup {
 
     // Given
     val conferenceId = "mix-it-18"
+    val history = Seq(ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
 
-    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+    conferenceEventRepository.setHistory(conferenceId, history: _*)
 
     // When
     conferenceCommandHandler.handle(UpdateConference(conferenceId, name = "MixIT 18"))
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
-      ConferenceUpdated(id = conferenceId, name = "MixIT 18")
-    )
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs
+      history :+ ConferenceUpdated(id = conferenceId, name = "MixIT 18")
   }
 
   it can "not be created if its the slug is already in use" in new Setup {
 
     // Given
     val conferenceId = "mix-it-18"
+    val history = ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
 
-    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+    conferenceEventRepository.setHistory(conferenceId, history)
 
     // When
     conferenceCommandHandler.handle(CreateConference(name = "MixIT 18", slug = conferenceId))
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain only
-      ConferenceCreated(name = "MixIT 2018", slug = conferenceId)
+    conferenceEventRepository.getEventStream(conferenceId) should contain only history
   }
 
   it can "not be published if not created before" in new Setup {
@@ -92,32 +90,29 @@ class ConferenceTest extends FlatSpec with Matchers {
 
     // Given
     val conferenceId = "mix-it-18"
-
-    conferenceEventRepository.setHistory(
-      conferenceId,
+    val history = Seq(
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
       ConferencePublished(id = conferenceId)
     )
+
+    conferenceEventRepository.setHistory(conferenceId, history: _*)
 
     // When
     conferenceCommandHandler handle PublishConference(id = conferenceId)
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs Seq(
-      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
-      ConferencePublished(id = "mix-it-18")
-    )
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs history
   }
 
   it should "reserve all the requested seats given a reservation for a seat type with sufficient quota" in new Setup {
 
     // Given
-    conferenceEventRepository.setHistory(
-      "mix-it-18",
+    val history = Seq(
       ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
       SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
       ConferencePublished(id = "mix-it-18")
     )
+    conferenceEventRepository.setHistory("mix-it-18", history: _*)
 
     // When
     conferenceCommandHandler handle MakeSeatsReservation(
@@ -127,22 +122,18 @@ class ConferenceTest extends FlatSpec with Matchers {
     )
 
     // Then
-    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
-      SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
-      ConferencePublished(id = "mix-it-18"),
-      SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 5)
-    )
+    conferenceEventRepository.getEventStream("mix-it-18") should contain theSameElementsInOrderAs
+      history :+ SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 5)
   }
 
   it should "reject a seats reservation for a conference that is not published yet" in new Setup {
 
     // Given
-    conferenceEventRepository.setHistory(
-      "mix-it-18",
+    val history = Seq(
       ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
       SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10)
     )
+    conferenceEventRepository.setHistory("mix-it-18", history: _*)
 
     // When
     conferenceCommandHandler handle MakeSeatsReservation(
@@ -152,23 +143,21 @@ class ConferenceTest extends FlatSpec with Matchers {
     )
 
     // Then
-    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
-      SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
-      SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-1", request = "Workshop" -> 3)
-    )
+    conferenceEventRepository.getEventStream("mix-it-18") should contain theSameElementsInOrderAs
+      history :+ SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-1", request = "Workshop" -> 3)
   }
 
   it should "reject a seats reservation for a seat type with an insufficient quota" in new Setup {
 
     // Given
-    conferenceEventRepository.setHistory(
-      "mix-it-18",
+    val history = Seq(
       ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
       SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
       ConferencePublished(id = "mix-it-18"),
       SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 7)
     )
+
+    conferenceEventRepository.setHistory("mix-it-18", history: _*)
 
     // When
     conferenceCommandHandler handle MakeSeatsReservation(
@@ -178,23 +167,19 @@ class ConferenceTest extends FlatSpec with Matchers {
     )
 
     // Then
-    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT", slug = "mix-it-18"),
-      SeatsAdded(conferenceId = "mix-it-18", seatType = "Workshop", quota = 10),
-      ConferencePublished(id = "mix-it-18"),
-      SeatsReserved(conferenceId = "mix-it-18", orderId = "ID-1", seats = "Workshop" -> 7),
-      SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-2", request = "Workshop" -> 4)
-    )
+    conferenceEventRepository.getEventStream("mix-it-18") should contain theSameElementsInOrderAs
+      history :+ SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-2", request = "Workshop" -> 4)
   }
 
   it should "reject a seats reservation for a missing seat type" in new Setup {
 
     // Given
-    conferenceEventRepository.setHistory(
-      "mix-it-18",
+    val history = Seq(
       ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
       ConferencePublished(id = "mix-it-18")
     )
+
+    conferenceEventRepository.setHistory("mix-it-18", history: _*)
 
     // When
     conferenceCommandHandler handle MakeSeatsReservation(
@@ -204,11 +189,8 @@ class ConferenceTest extends FlatSpec with Matchers {
     )
 
     // Then
-    conferenceEventRepository.getEventStream("mix-it-18") should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = "mix-it-18"),
-      ConferencePublished(id = "mix-it-18"),
-      SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-1", request = "Conference" -> 3)
-    )
+    conferenceEventRepository.getEventStream("mix-it-18") should contain theSameElementsInOrderAs
+      history :+ SeatsReservationRejected(conferenceId = "mix-it-18", orderId = "ID-1", request = "Conference" -> 3)
   }
 
   it should "discard a seats reservation if not created before" in new Setup {
@@ -243,17 +225,16 @@ class ConferenceTest extends FlatSpec with Matchers {
 
     // Given
     val conferenceId = "mix-it-18"
+    val history = Seq(ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
 
-    conferenceEventRepository.setHistory(conferenceId, ConferenceCreated(name = "MixIT 2018", slug = conferenceId))
+    conferenceEventRepository.setHistory(conferenceId, history: _*)
 
     // When
     conferenceCommandHandler handle AddSeatsToConference(conferenceId, seatType = "Workshop", quota = 100)
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
-      SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
-    )
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs
+      history :+ SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
   }
 
   it can "not be added if the conference has not been created before" in new Setup {
@@ -269,20 +250,17 @@ class ConferenceTest extends FlatSpec with Matchers {
 
     // Given
     val conferenceId = "mix-it-18"
-
-    conferenceEventRepository.setHistory(
-      conferenceId,
+    val history = Seq(
       ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
       SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
     )
+
+    conferenceEventRepository.setHistory(conferenceId, history: _*)
 
     // When
     conferenceCommandHandler handle AddSeatsToConference(conferenceId, seatType = "Workshop", quota = 50)
 
     // Then
-    conferenceEventRepository.getEventStream(conferenceId) should contain inOrderOnly(
-      ConferenceCreated(name = "MixIT 2018", slug = conferenceId),
-      SeatsAdded(conferenceId, seatType = "Workshop", quota = 100)
-    )
+    conferenceEventRepository.getEventStream(conferenceId) should contain theSameElementsInOrderAs history
   }
 }

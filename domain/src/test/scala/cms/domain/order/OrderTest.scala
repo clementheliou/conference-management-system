@@ -35,38 +35,31 @@ class OrderTest extends FlatSpec with Matchers {
 
     // Given
     val orderId = "ID-1"
+    val history = OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
 
-    eventSourcedRepository.setHistory(
-      orderId,
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
-    )
+    eventSourcedRepository.setHistory(orderId, history)
 
     // When
     orderCommandHandler.handle { PlaceOrder(conferenceId = "mix-it-18", "Workshop" -> 6) }
 
     // Then
-    eventSourcedRepository.getEventStream(orderId) should contain only
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
+    eventSourcedRepository.getEventStream(orderId) should contain only history
   }
 
   it can "be rejected" in new Setup {
 
     // Given
     val orderId = "ID-1"
+    val history = Seq(OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3))
 
-    eventSourcedRepository.setHistory(
-      orderId,
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3)
-    )
+    eventSourcedRepository.setHistory(orderId, history: _*)
 
     // When
     orderCommandHandler handle RejectOrder(orderId)
 
     // Then
-    eventSourcedRepository.getEventStream(orderId) should contain inOrderOnly(
-      OrderPlaced(orderId, conferenceId = "mix-it-18", seats = "Workshop" -> 3),
-      OrderRejected(orderId, conferenceId = "mix-it-18")
-    )
+    eventSourcedRepository.getEventStream(orderId) should contain theSameElementsInOrderAs
+      history :+ OrderRejected(orderId, conferenceId = "mix-it-18")
   }
 
   it should "not be instantiated from an empty history" in {
@@ -78,19 +71,15 @@ class OrderTest extends FlatSpec with Matchers {
   "An order seats reservation" can "be confirmed" in new Setup {
 
     // Given
-    eventSourcedRepository.setHistory(
-      "ID-1",
-      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3)
-    )
+    val history = Seq(OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3))
+    eventSourcedRepository.setHistory("ID-1", history: _*)
 
     // When
     orderCommandHandler handle ConfirmSeatsReservation(orderId = "ID-1", seats = "Workshop" -> 3)
 
     // Then
-    eventSourcedRepository.getEventStream("ID-1") should contain inOrderOnly(
-      OrderPlaced(orderId = "ID-1", conferenceId = "mix-it-18", seats = "Workshop" -> 3),
-      SeatsReservationConfirmed(orderId = "ID-1", seats = "Workshop" -> 3)
-    )
+    eventSourcedRepository.getEventStream("ID-1") should contain theSameElementsInOrderAs
+      history :+ SeatsReservationConfirmed(orderId = "ID-1", seats = "Workshop" -> 3)
   }
 
   it can "not be confirmed for a missing order" in new Setup {
